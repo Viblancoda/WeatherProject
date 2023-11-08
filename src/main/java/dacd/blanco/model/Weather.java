@@ -1,25 +1,37 @@
 package dacd.blanco.model;
 
 public class Weather {
-    private final String cod;
-    private final int message;
-    private final int cnt;
+    private final double temperature;
+    private final double humidity;
+    private final int clouds;
+    private final double windSpeed;
+    private final double rainProb;
 
-    public Weather(String cod, int message, int cnt) {
-        this.cod = cod;
-        this.message = message;
-        this.cnt = cnt;
+    public Weather(double temperature, double humidity, int clouds, double windSpeed, double rainProb) {
+        this.temperature = temperature;
+        this.humidity = humidity;
+        this.clouds = clouds;
+        this.windSpeed = windSpeed;
+        this.rainProb = rainProb;
     }
 
-    public String getCod() {
-        return cod;
+    public double getTemperature() {
+        return temperature;
     }
 
-    public int getMessage() {
-        return message;
+    public double getHumidity() {
+        return humidity;
     }
 
-    public int getCnt() {
-        return cnt;
+    public int getClouds() {
+        return clouds;
+    }
+
+    public double getWindSpeed() {
+        return windSpeed;
+    }
+
+    public double getRainProb() {
+        return rainProb;
     }
 }
