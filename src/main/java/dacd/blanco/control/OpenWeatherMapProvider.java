@@ -1,58 +1,58 @@
 package dacd.blanco.control;
-import java.net.HttpURLConnection;
-import java.net.URL;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import dacd.blanco.model.Location;
 import dacd.blanco.model.Weather;
-import java.time.Instant;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
 import com.google.gson.Gson;
 
-public class OpenWeatherMapProvider implements WeatherProvider{
-    private String apiKey;
-    private String templateUrl;
+import org.jsoup.Jsoup;
 
-    public OpenWeatherMapProvider(String apiKey, String templateUrl) {
-        this.apiKey = apiKey;
-        this.templateUrl = templateUrl;
-    }
+import java.io.IOException;
+import java.time.Instant;
+
+public class OpenWeatherMapProvider implements WeatherProvider {
     @Override
     public Weather get(Location location, Instant instant) {
-        String apiUrl = buildApiUrl(location, instant);
-
+        Weather weatherObj = null;
         try {
-            HttpURLConnection connection = (HttpURLConnection) new URL(apiUrl).openConnection();
-            connection.setRequestMethod("GET");
+            String apiUrl = "https://api.openweathermap.org/data/2.5/forecast?lat=" + location.getLatitude() +
+                    "&lon=" + location.getLongitude() +
+                    "&appid=c9c2b1c414da7fcb6729cb70576280f7&units=metric";
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            StringBuilder response = new StringBuilder();
-            String line;
+            String jsonString = Jsoup.connect(apiUrl).ignoreContentType(true).execute().body();
 
-            while ((line = reader.readLine()) != null) {
-                response.append(line);
+            Gson gson = new Gson();
+            JsonObject weatherJson = gson.fromJson(jsonString, JsonObject.class);
+            JsonArray weatherJsonArray = weatherJson.getAsJsonObject().getAsJsonArray("list");
+
+            for (JsonElement weather : weatherJsonArray) {
+                JsonObject weatherJsonObject = weather.getAsJsonObject();
+
+                JsonObject main = weatherJsonObject.getAsJsonObject("main");
+
+                double temperature = main.get("temp").getAsDouble();
+                int humidity = main.get("humidity").getAsInt();
+                double rainProb = weatherJsonObject.get("pop").getAsDouble();
+                int clouds = weatherJsonObject.getAsJsonObject("clouds").get("all").getAsInt();
+                double windSpeed = weatherJsonObject.getAsJsonObject("wind").get("speed").getAsDouble();
+                long dT = weatherJsonObject.get("dt").getAsLong();
+                Instant dt = Instant.ofEpochSecond(dT);
+                System.out.println("Temperature: " + temperature);
+                System.out.println("Humidity: " + humidity);
+                System.out.println("Rain Probability: " + rainProb);
+                System.out.println("Clouds: " + clouds);
+                System.out.println("Wind Speed: " + windSpeed);
+                System.out.println("Timestamp: " + dt);
+                if (dt.equals(instant)) {
+                    weatherObj = new Weather(location, clouds, windSpeed, rainProb, temperature, humidity, dt);
+                    break;
+                }
             }
-
-            reader.close();
-
-            Weather weather = parseJsonResponse(response.toString());
-
-            return weather;
         } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException(e);
         }
-    }
-
-    private String buildApiUrl(Location location, Instant instant) {
-        return String.format("https://api.openweathermap.org/data/2.5/forecast?lat=" + location.getLatitude() + "&lon=" + location.getLongitude() +
-                "&appid=c9c2b1c414da7fcb6729cb70576280f7&units=metric");
-    }
-
-    private Weather parseJsonResponse(String jsonResponse) {
-        Gson gson = new Gson();
-        Weather weather = gson.fromJson(jsonResponse, Weather.class);
-
-        return weather;
+        return weatherObj;
     }
 }
