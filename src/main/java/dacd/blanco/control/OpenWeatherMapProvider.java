@@ -1,17 +1,15 @@
 package dacd.blanco.control;
-
-import com.google.gson.Gson;
-import dacd.blanco.model.Location;
-import dacd.blanco.model.Weather;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import dacd.blanco.model.Location;
+import dacd.blanco.model.Weather;
 import java.time.Instant;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import com.google.gson.Gson;
 
-public class OpenWeatherMapProvider implements WeatherProvider {
+public class OpenWeatherMapProvider implements WeatherProvider{
     private String apiKey;
     private String templateUrl;
 

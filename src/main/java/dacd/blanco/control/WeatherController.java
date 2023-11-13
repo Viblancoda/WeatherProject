@@ -1,4 +1,5 @@
 package dacd.blanco.control;
+
 import dacd.blanco.model.Location;
 import dacd.blanco.model.Weather;
 
@@ -7,6 +8,7 @@ import java.time.Instant;
 
 public class WeatherController {
     public void displayAndSaveWeatherInfo(ArrayList<Location> islands) {
+        WeatherStore weatherStore = new SQLiteWeatherStore("jdbc:sqlite:weather.db");
         WeatherProvider weatherProvider = new OpenWeatherMapProvider("c9c2b1c414da7fcb6729cb70576280f7", "https://api.openweathermap.org/data/2.5/forecast?lat=%.2f&lon=%.2f&appid=%s&units=metric");
 
         for (Location island : islands) {
@@ -19,11 +21,10 @@ public class WeatherController {
                 System.out.println("Wind Speed: " + weather.getWindSpeed() + " m/s");
                 System.out.println("Rain Probability: " + weather.getRainProb() + "%");
                 System.out.println("Date Time: " + weather.getDt());
-
+                weatherStore.saveWeather(island, Instant.now(), weather);
             } else {
                 System.out.println("Failed to retrieve weather info for " + island.getName());
             }
         }
     }
 }
-
