@@ -39,7 +39,7 @@ public class WeatherController {
     private List<Instant> createInstantList() {
         List<Instant> instants = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            instants.add(Instant.now().plus(i, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS));
+            instants.add(Instant.now().plus(i, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS).plus(12, ChronoUnit.HOURS));
         }
         return instants;
     }

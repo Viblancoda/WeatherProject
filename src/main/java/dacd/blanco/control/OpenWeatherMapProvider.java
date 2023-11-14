@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import dacd.blanco.model.Location;
 import dacd.blanco.model.Weather;
 import com.google.gson.Gson;
+import java.time.temporal.ChronoUnit;
 
 import org.jsoup.Jsoup;
 
@@ -39,12 +40,14 @@ public class OpenWeatherMapProvider implements WeatherProvider {
                 double windSpeed = weatherJsonObject.getAsJsonObject("wind").get("speed").getAsDouble();
                 long dT = weatherJsonObject.get("dt").getAsLong();
                 Instant dt = Instant.ofEpochSecond(dT);
-                System.out.println("Temperature: " + temperature);
-                System.out.println("Humidity: " + humidity);
-                System.out.println("Rain Probability: " + rainProb);
-                System.out.println("Clouds: " + clouds);
-                System.out.println("Wind Speed: " + windSpeed);
-                System.out.println("Timestamp: " + dt);
+                if (dt.truncatedTo(ChronoUnit.HOURS).equals(instant.truncatedTo(ChronoUnit.DAYS).plus(24, ChronoUnit.HOURS))) {
+                    System.out.println("Temperature: " + temperature);
+                    System.out.println("Humidity: " + humidity);
+                    System.out.println("Rain Probability: " + rainProb);
+                    System.out.println("Clouds: " + clouds);
+                    System.out.println("Wind Speed: " + windSpeed);
+                    System.out.println("Timestamp: " + dt);
+                }
                 if (dt.equals(instant)) {
                     weatherObj = new Weather(location, clouds, windSpeed, rainProb, temperature, humidity, dt);
                     break;
