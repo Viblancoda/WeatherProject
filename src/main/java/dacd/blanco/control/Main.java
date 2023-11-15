@@ -1,16 +1,19 @@
 package dacd.blanco.control;
 
-import dacd.blanco.model.Location;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args) {
-            WeatherController weatherController = new WeatherController(new OpenWeatherMapProvider(), new SQLiteWeatherStore());
-            weatherController.execute();
+        WeatherController weatherController = new WeatherController(new OpenWeatherMapProvider(), new SQLiteWeatherStore());
+
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                weatherController.execute();
+            }
+        }, 0, TimeUnit.HOURS.toMillis(6));
     }
 }

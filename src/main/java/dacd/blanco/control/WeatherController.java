@@ -3,12 +3,8 @@ package dacd.blanco.control;
 import dacd.blanco.model.Location;
 import dacd.blanco.model.Weather;
 
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.List;
 import java.time.temporal.ChronoUnit;
 
@@ -34,7 +30,8 @@ public class WeatherController {
                 new Location("Tenerife", 28.46824, -16.25462),
                 new Location("El Hierro", 27.80628, -17.91578),
                 new Location("La Palma", 28.68351, -17.76421),
-                new Location("La Graciosa", 29.23147, -13.50341));
+                new Location("La Graciosa", 29.23147, -13.50341),
+                new Location("La Gomera", 28.0916300, -17.1133100));
     }
     private List<Instant> createInstantList() {
         List<Instant> instants = new ArrayList<>();

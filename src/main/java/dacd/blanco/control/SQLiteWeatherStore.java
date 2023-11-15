@@ -14,7 +14,7 @@ import dacd.blanco.model.Weather;
 
 public class SQLiteWeatherStore implements WeatherStore {
 
-    private static final String DATABASE_URL = "jdbc:sqlite:C:/Users/vituk/OneDrive/Escritorio/SQLite/weather.db";
+    private static final String DATABASE_URL = "jdbc:sqlite:C:/Users/vituk/OneDrive/Escritorio/SQLite/weatherdata.db";
 
     public SQLiteWeatherStore() {
         initializeDatabase();
@@ -45,7 +45,7 @@ public class SQLiteWeatherStore implements WeatherStore {
     @Override
     public void saveWeather(Weather weather) {
         try (Connection connection = DriverManager.getConnection(DATABASE_URL);
-             PreparedStatement preparedStatement = createInsertStatement(connection, weather)) {
+             PreparedStatement preparedStatement = createInsertOrUpdateStatement(connection, weather)) {
 
             preparedStatement.executeUpdate();
             System.out.println("Weather data saved successfully.");
@@ -67,9 +67,12 @@ public class SQLiteWeatherStore implements WeatherStore {
         }
     }
 
-    private PreparedStatement createInsertStatement(Connection connection, Weather weather) throws SQLException {
-        String insertWeatherSQL = "INSERT INTO weather (name, clouds, wind, pop, temperature, humidity, dt) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        PreparedStatement preparedStatement = connection.prepareStatement(insertWeatherSQL);
+    private PreparedStatement createInsertOrUpdateStatement(Connection connection, Weather weather) throws SQLException {
+        String insertOrUpdateWeatherSQL =
+                "INSERT OR IGNORE INTO weather (name, clouds, wind, pop, temperature, humidity, dt) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(insertOrUpdateWeatherSQL);
 
         preparedStatement.setString(1, weather.getLocation().getName());
         preparedStatement.setInt(2, weather.getClouds());
