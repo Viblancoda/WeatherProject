@@ -14,7 +14,7 @@ import dacd.blanco.model.Weather;
 
 public class SQLiteWeatherStore implements WeatherStore {
 
-    private static final String DATABASE_URL = "jdbc:sqlite:C:/Users/vituk/OneDrive/Escritorio/SQLite/jacobo.db";
+    private static final String DATABASE_URL = "jdbc:sqlite:C:/Users/vituk/OneDrive/Escritorio/SQLite/islandsweather.db";
 
     public SQLiteWeatherStore() {
         initializeDatabase();
@@ -60,13 +60,17 @@ public class SQLiteWeatherStore implements WeatherStore {
 
     @Override
     public void loadWeather(Location location, Instant instant) {
-        WeatherProvider weatherProvider = new OpenWeatherMapProvider();
-        Weather weather = weatherProvider.get(location, instant);
+        if (!exists(location, instant)) {
+            WeatherProvider weatherProvider = new OpenWeatherMapProvider(OpenWeatherMapProvider.getApiKey(), OpenWeatherMapProvider.getUrl());
+            Weather weather = weatherProvider.get(location, instant);
 
-        if (weather != null) {
-            saveWeather(weather);
+            if (weather != null) {
+                saveWeather(weather);
+            } else {
+                System.out.println("No weather data found for " + location.getName() + " at " + instant);
+            }
         } else {
-            System.out.println("No weather data found for " + location.getName() + " at " + instant);
+            System.out.println("Weather data already exists for " + location.getName() + " at " + instant);
         }
     }
 

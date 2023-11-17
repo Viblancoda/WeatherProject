@@ -6,21 +6,36 @@ import com.google.gson.JsonObject;
 import dacd.blanco.model.Location;
 import dacd.blanco.model.Weather;
 import com.google.gson.Gson;
+
+import java.io.IOException;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 import org.jsoup.Jsoup;
 
-import java.io.IOException;
-import java.time.Instant;
-
 public class OpenWeatherMapProvider implements WeatherProvider {
+    private static String apiKey;
+    private static String url;
+
+    public OpenWeatherMapProvider(String apiKey, String url) {
+        this.apiKey = apiKey;
+        this.url = url;
+    }
+
+    public static String getApiKey() {
+        return apiKey;
+    }
+
+    public static String getUrl() {
+        return url;
+    }
+
     @Override
     public Weather get(Location location, Instant instant) {
-        Weather weatherObj = null;
         try {
-            String apiUrl = "https://api.openweathermap.org/data/2.5/forecast?lat=" + location.getLatitude() +
+            String apiUrl = url + "?lat=" + location.getLatitude() +
                     "&lon=" + location.getLongitude() +
-                    "&appid=c9c2b1c414da7fcb6729cb70576280f7&units=metric";
+                    "&appid=" + apiKey + "&units=metric";
 
             String jsonString = Jsoup.connect(apiUrl).ignoreContentType(true).execute().body();
 
@@ -31,31 +46,20 @@ public class OpenWeatherMapProvider implements WeatherProvider {
             for (JsonElement weather : weatherJsonArray) {
                 JsonObject weatherJsonObject = weather.getAsJsonObject();
 
-                JsonObject main = weatherJsonObject.getAsJsonObject("main");
-
-                double temperature = main.get("temp").getAsDouble();
-                int humidity = main.get("humidity").getAsInt();
+                double temperature = weatherJsonObject.getAsJsonObject("main").get("temp").getAsDouble();
+                int humidity = weatherJsonObject.getAsJsonObject("main").get("humidity").getAsInt();
                 double rainProb = weatherJsonObject.get("pop").getAsDouble();
                 int clouds = weatherJsonObject.getAsJsonObject("clouds").get("all").getAsInt();
                 double windSpeed = weatherJsonObject.getAsJsonObject("wind").get("speed").getAsDouble();
-                long dT = weatherJsonObject.get("dt").getAsLong();
-                Instant dt = Instant.ofEpochSecond(dT);
-                if (dt.truncatedTo(ChronoUnit.HOURS).equals(instant.truncatedTo(ChronoUnit.DAYS).plus(24, ChronoUnit.HOURS))) {
-                    System.out.println("Temperature: " + temperature);
-                    System.out.println("Humidity: " + humidity);
-                    System.out.println("Rain Probability: " + rainProb);
-                    System.out.println("Clouds: " + clouds);
-                    System.out.println("Wind Speed: " + windSpeed);
-                    System.out.println("Timestamp: " + dt);
-                }
+                Instant dt = Instant.ofEpochSecond(weatherJsonObject.get("dt").getAsLong()).truncatedTo(ChronoUnit.HOURS);
+
                 if (dt.equals(instant)) {
-                    weatherObj = new Weather(location, clouds, windSpeed, rainProb, temperature, humidity, dt);
-                    break;
+                    return new Weather(location, clouds, windSpeed, rainProb, temperature, humidity, dt);
                 }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return weatherObj;
+        return null;
     }
 }
