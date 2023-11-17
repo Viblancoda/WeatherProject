@@ -9,7 +9,7 @@ import java.util.List;
 public interface WeatherStore {
     void saveWeather(Weather weather);
 
-    void loadWeather(Location location, Instant dt);
+    void loadWeather(Location location, Instant instant);
 
     boolean exists(Location location, Instant dt);
 

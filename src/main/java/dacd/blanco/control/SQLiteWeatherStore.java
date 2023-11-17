@@ -14,7 +14,7 @@ import dacd.blanco.model.Weather;
 
 public class SQLiteWeatherStore implements WeatherStore {
 
-    private static final String DATABASE_URL = "jdbc:sqlite:C:/Users/vituk/OneDrive/Escritorio/SQLite/jaco.db";
+    private static final String DATABASE_URL = "jdbc:sqlite:C:/Users/vituk/OneDrive/Escritorio/SQLite/jacobo.db";
 
     public SQLiteWeatherStore() {
         initializeDatabase();
@@ -24,7 +24,6 @@ public class SQLiteWeatherStore implements WeatherStore {
         try (Connection connection = DriverManager.getConnection(DATABASE_URL);
              Statement statement = connection.createStatement()) {
 
-            // Crear una tabla para cada isla
             for (Location location : createLocationList()) {
                 String tableName = location.getName().toLowerCase().replace(" ", "_") + "_weather";
                 String createTableSQL = "CREATE TABLE IF NOT EXISTS " + tableName + " (" +
@@ -103,6 +102,10 @@ public class SQLiteWeatherStore implements WeatherStore {
     }
 
     private PreparedStatement createInsertStatement(Connection connection, Weather weather) throws SQLException {
+        if (weather == null) {
+            throw new IllegalArgumentException("Weather object is null");
+        }
+
         String tableName = weather.getLocation().getName().toLowerCase().replace(" ", "_") + "_weather";
         String insertWeatherSQL =
                 "INSERT INTO " + tableName + " (clouds, wind, pop, temperature, humidity, dt) " +

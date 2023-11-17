@@ -59,21 +59,25 @@ public class WeatherController {
     private void loadWeatherDataToDatabase(List<Location> locationList, List<Instant> instantList) {
         for (Location location : locationList) {
             for (Instant instant : instantList) {
-                Weather weather = weatherProvider.get(location, instant);
-
-                if (weather != null) {
-                    // Check if data already exists in the database for the specified location and instant
-                    if (weatherStore.exists(location, instant)) {
-                        // Data exists, update the existing entry
+                // Check if data already exists in the database for the specified location and instant
+                if (weatherStore.exists(location, instant)) {
+                    // Data exists, update the existing entry
+                    Weather weather = weatherProvider.get(location, instant);
+                    if (weather != null) {
                         weatherStore.updateWeather(weather);
                         System.out.println("Weather data updated successfully.");
                     } else {
-                        // Data does not exist, insert a new entry
-                        weatherStore.saveWeather(weather);
-                        System.out.println("Weather data saved successfully.");
+                        System.out.println("No weather data found for " + location.getName() + " at " + instant);
                     }
                 } else {
-                    System.out.println("No weather data found for " + location.getName() + " at " + instant);
+                    // Data does not exist, insert a new entry
+                    Weather weather = weatherProvider.get(location, instant);
+                    if (weather != null) {
+                        weatherStore.saveWeather(weather);
+                        System.out.println("Weather data saved successfully.");
+                    } else {
+                        System.out.println("No weather data found for " + location.getName() + " at " + instant);
+                    }
                 }
             }
         }
