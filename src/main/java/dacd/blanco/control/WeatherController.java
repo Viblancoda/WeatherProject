@@ -23,7 +23,7 @@ public class WeatherController {
         getAndPrintWeatherData(locationList, instantList);
         loadWeatherDataToDatabase(locationList, instantList);
     }
-    private List<Location> createLocationList() {
+    List<Location> createLocationList() {
         return List.of(new Location("Lanzarote", 28.96302, -13.54769),
                 new Location("Fuerteventura", 28.50038, -13.86272),
                 new Location("Gran Canaria", 28.09973, -15.41343),
@@ -59,7 +59,22 @@ public class WeatherController {
     private void loadWeatherDataToDatabase(List<Location> locationList, List<Instant> instantList) {
         for (Location location : locationList) {
             for (Instant instant : instantList) {
-                weatherStore.loadWeather(location, instant);
+                Weather weather = weatherProvider.get(location, instant);
+
+                if (weather != null) {
+                    // Check if data already exists in the database for the specified location and instant
+                    if (weatherStore.exists(location, instant)) {
+                        // Data exists, update the existing entry
+                        weatherStore.updateWeather(weather);
+                        System.out.println("Weather data updated successfully.");
+                    } else {
+                        // Data does not exist, insert a new entry
+                        weatherStore.saveWeather(weather);
+                        System.out.println("Weather data saved successfully.");
+                    }
+                } else {
+                    System.out.println("No weather data found for " + location.getName() + " at " + instant);
+                }
             }
         }
     }

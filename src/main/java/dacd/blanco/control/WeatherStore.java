@@ -10,4 +10,8 @@ public interface WeatherStore {
     void saveWeather(Weather weather);
 
     void loadWeather(Location location, Instant dt);
+
+    boolean exists(Location location, Instant dt);
+
+    void updateWeather(Weather weather);
 }
