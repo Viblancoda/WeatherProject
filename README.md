@@ -4,7 +4,7 @@ Curso: 2023/24
 Titulación: Ciencia e Ingeniería de Datos  
 Escuela: Escuela Técnica Superior de Ingeniería Informática  
 Universidad: Universidad de Las Palmas de Gran Canaria  
- 
+
 ## Resumen de la Funcionalidad
 La práctica tiene como objetivo desarrollar una aplicación cliente-servidor que obtiene datos meteorológicos de diferentes ubicaciones, en este caso de las Islas Canarias, y los almacena en una base de datos SQLite. La aplicación sigue un enfoque de programación orientada a objetos en Java, haciendo uso de patrones y principios de diseño para lograr un código modular y mantenible.  
 La funcionalidad se divide en tres componentes principales:  
