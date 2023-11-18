@@ -14,14 +14,15 @@ import dacd.blanco.model.Weather;
 
 public class SQLiteWeatherStore implements WeatherStore {
 
-    private static final String DATABASE_URL = "jdbc:sqlite:C:/Users/vituk/OneDrive/Escritorio/SQLite/islandsweather.db";
+    private static String database_url;
 
-    public SQLiteWeatherStore() {
+    public SQLiteWeatherStore(String database_url) {
+        this.database_url = database_url;
         initializeDatabase();
     }
 
     private void initializeDatabase() {
-        try (Connection connection = DriverManager.getConnection(DATABASE_URL);
+        try (Connection connection = DriverManager.getConnection(database_url);
              Statement statement = connection.createStatement()) {
 
             for (Location location : createLocationList()) {
@@ -35,10 +36,8 @@ public class SQLiteWeatherStore implements WeatherStore {
                         "dt TEXT" +
                         ")";
                 statement.executeUpdate(createTableSQL);
-                System.out.println("Table created successfully for " + location.getName());
+                System.out.println("Table created for " + location.getName());
             }
-
-            System.out.println("All tables created successfully.");
 
         } catch (SQLException e) {
             throw new RuntimeException("Error initializing database", e);
@@ -47,11 +46,9 @@ public class SQLiteWeatherStore implements WeatherStore {
 
     @Override
     public void saveWeather(Weather weather) {
-        try (Connection connection = DriverManager.getConnection(DATABASE_URL);
+        try (Connection connection = DriverManager.getConnection(database_url);
              PreparedStatement preparedStatement = createInsertStatement(connection, weather)) {
-
             preparedStatement.executeUpdate();
-            System.out.println("Weather data saved successfully.");
 
         } catch (SQLException e) {
             throw new RuntimeException("Error saving weather data", e);
@@ -61,7 +58,7 @@ public class SQLiteWeatherStore implements WeatherStore {
     @Override
     public void loadWeather(Location location, Instant instant) {
         if (!exists(location, instant)) {
-            WeatherProvider weatherProvider = new OpenWeatherMapProvider(OpenWeatherMapProvider.getApiKey(), OpenWeatherMapProvider.getUrl());
+            WeatherProvider weatherProvider = new OpenWeatherMapProvider(OpenWeatherMapProvider.getApiKey());
             Weather weather = weatherProvider.get(location, instant);
 
             if (weather != null) {
@@ -78,7 +75,7 @@ public class SQLiteWeatherStore implements WeatherStore {
     public boolean exists(Location location, Instant dt) {
         String tableName = location.getName().toLowerCase().replace(" ", "_") + "_weather";
         String query = "SELECT COUNT(*) FROM " + tableName + " WHERE dt = ?";
-        try (Connection connection = DriverManager.getConnection(DATABASE_URL);
+        try (Connection connection = DriverManager.getConnection(database_url);
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             preparedStatement.setString(1, dt.toString());
@@ -94,7 +91,7 @@ public class SQLiteWeatherStore implements WeatherStore {
 
     @Override
     public void updateWeather(Weather weather) {
-        try (Connection connection = DriverManager.getConnection(DATABASE_URL);
+        try (Connection connection = DriverManager.getConnection(database_url);
              PreparedStatement preparedStatement = createUpdateStatement(connection, weather)) {
 
             preparedStatement.executeUpdate();

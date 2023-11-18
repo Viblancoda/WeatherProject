@@ -15,25 +15,19 @@ import org.jsoup.Jsoup;
 
 public class OpenWeatherMapProvider implements WeatherProvider {
     private static String apiKey;
-    private static String url;
 
-    public OpenWeatherMapProvider(String apiKey, String url) {
+    public OpenWeatherMapProvider(String apiKey) {
         this.apiKey = apiKey;
-        this.url = url;
     }
 
     public static String getApiKey() {
         return apiKey;
     }
 
-    public static String getUrl() {
-        return url;
-    }
-
     @Override
     public Weather get(Location location, Instant instant) {
         try {
-            String apiUrl = url + "?lat=" + location.getLatitude() +
+            String apiUrl = "https://api.openweathermap.org/data/2.5/forecast?lat=" + location.getLatitude() +
                     "&lon=" + location.getLongitude() +
                     "&appid=" + apiKey + "&units=metric";
 
