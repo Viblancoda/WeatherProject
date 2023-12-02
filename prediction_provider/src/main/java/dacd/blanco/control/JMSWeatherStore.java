@@ -10,19 +10,20 @@ import com.google.gson.Gson;
 
 public class JMSWeatherStore implements WeatherStore {
 
-    private static final String BROKER_URL = ActiveMQConnectionFactory.DEFAULT_BROKER_URL;
-    private static final String QUEUE_NAME = "WEATHER_QUEUE";
+    private static final String brokerUrl = ActiveMQConnectionFactory.DEFAULT_BROKER_URL;
+    private static final String topicName = "prediction.Weather";
 
     @Override
     public void saveWeather(Weather weather) {
+        Connection connection = null;
         try {
-            ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(BROKER_URL);
-            Connection connection = connectionFactory.createConnection();
+            ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(brokerUrl);
+            connection = connectionFactory.createConnection();
             connection.start();
 
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-            Destination destination = session.createQueue(QUEUE_NAME);
+            Destination destination = session.createTopic(topicName);
 
             MessageProducer producer = session.createProducer(destination);
 
@@ -37,10 +38,16 @@ public class JMSWeatherStore implements WeatherStore {
             producer.send(weatherMessage);
 
             System.out.println("Weather sent to JMS broker.");
-
-            connection.close();
         } catch (JMSException e) {
             throw new RuntimeException("Error storing weather data to JMS", e);
+        } finally {
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (JMSException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

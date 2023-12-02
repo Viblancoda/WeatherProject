@@ -27,14 +27,13 @@ public class WeatherController {
                 if (weather != null) {
                     System.out.println(weather);
                     System.out.println();
+                    weatherStore.saveWeather(weather);
                 } else {
                     System.out.println("No weather data found for " + location.getName() + " at " + instant);
                 }
-                weatherStore.saveWeather(weather);
             }
         }
     }
-
     private List<Location> createLocationList() {
         return List.of(new Location("Lanzarote", 28.96302, -13.54769),
                 new Location("Fuerteventura", 28.50038, -13.86272),
@@ -48,11 +47,8 @@ public class WeatherController {
 
     private List<Instant> createInstantList() {
         List<Instant> instants = new ArrayList<>();
-        Instant currentInstant = Instant.now().truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS).plus(12, ChronoUnit.HOURS);
-
         for (int i = 0; i < 5; i++) {
-            instants.add(currentInstant);
-            currentInstant = currentInstant.plus(1, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS).plus(12, ChronoUnit.HOURS);
+            instants.add(Instant.now().plus(i, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS).plus(12, ChronoUnit.HOURS));
         }
         return instants;
     }
