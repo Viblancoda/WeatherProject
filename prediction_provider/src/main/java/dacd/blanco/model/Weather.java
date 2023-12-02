@@ -50,4 +50,12 @@ public class Weather {
     public Instant getDt() {
         return dt;
     }
+
+    public static Instant getPredictionDt() {
+        return predictionDt;
+    }
+
+    public static String getSs() {
+        return ss;
+    }
 }
