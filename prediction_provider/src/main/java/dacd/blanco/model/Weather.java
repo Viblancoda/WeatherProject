@@ -10,6 +10,8 @@ public class Weather {
     private double temperature;
     private int humidity;
     private Instant dt;
+    private static Instant predictionDt = Instant.now();
+    private static String ss = "event_store_builder";
 
     public Weather(Location location, int clouds, double windSpeed, double rainProb, double temperature, int humidity, Instant dt) {
         this.location = location;

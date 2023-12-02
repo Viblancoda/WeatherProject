@@ -2,7 +2,6 @@ package dacd.blanco.control;
 
 import dacd.blanco.model.Location;
 import dacd.blanco.model.Weather;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -20,7 +19,6 @@ public class WeatherController {
     public void execute() {
         List<Location> locationList = createLocationList();
         List<Instant> instantList = createInstantList();
-        loadWeatherDataFromDatabase(locationList, instantList);
 
         for (Location location : locationList) {
             for (Instant instant : instantList) {
@@ -32,34 +30,7 @@ public class WeatherController {
                 } else {
                     System.out.println("No weather data found for " + location.getName() + " at " + instant);
                 }
-
-                loadOrUpdateWeatherData(location, instant);
-            }
-        }
-    }
-
-    private void loadOrUpdateWeatherData(Location location, Instant instant) {
-        if (weatherStore.exists(location, instant)) {
-            Weather weather = weatherProvider.get(location, instant);
-            if (weather != null) {
-                weatherStore.updateWeather(weather);
-            } else {
-                System.out.println("No weather data found for " + location.getName() + " at " + instant);
-            }
-        } else {
-            Weather weather = weatherProvider.get(location, instant);
-            if (weather != null) {
                 weatherStore.saveWeather(weather);
-            } else {
-                System.out.println("No weather data found for " + location.getName() + " at " + instant);
-            }
-        }
-    }
-
-    private void loadWeatherDataFromDatabase(List<Location> locationList, List<Instant> instantList) {
-        for (Location location : locationList) {
-            for (Instant instant : instantList) {
-                weatherStore.loadWeather(location, instant);
             }
         }
     }
@@ -77,8 +48,11 @@ public class WeatherController {
 
     private List<Instant> createInstantList() {
         List<Instant> instants = new ArrayList<>();
+        Instant currentInstant = Instant.now().truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS).plus(12, ChronoUnit.HOURS);
+
         for (int i = 0; i < 5; i++) {
-            instants.add(Instant.now().plus(i, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS).plus(12, ChronoUnit.HOURS));
+            instants.add(currentInstant);
+            currentInstant = currentInstant.plus(1, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS).plus(12, ChronoUnit.HOURS);
         }
         return instants;
     }

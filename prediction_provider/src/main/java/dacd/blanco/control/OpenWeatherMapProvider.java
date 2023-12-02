@@ -20,10 +20,6 @@ public class OpenWeatherMapProvider implements WeatherProvider {
         this.apiKey = apiKey;
     }
 
-    public static String getApiKey() {
-        return apiKey;
-    }
-
     @Override
     public Weather get(Location location, Instant instant) {
         try {

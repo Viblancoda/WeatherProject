@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args) {
-        WeatherController weatherController = new WeatherController(new OpenWeatherMapProvider(args[0]), new SQLiteWeatherStore(args[1]));
+        WeatherController weatherController = new WeatherController(new OpenWeatherMapProvider(args[0]), new JMSWeatherStore());
 
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
