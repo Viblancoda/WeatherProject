@@ -33,8 +33,11 @@ public class MessageStore implements MessageSaver {
     private void initializeExecutionFile() {
         SimpleDateFormat executionDateFormat = new SimpleDateFormat("yyyyMMdd");
         Date predictionDt = new Date(Weather.getPredictionDt().toEpochMilli());
-        String subDirectory = baseDirectory + "/prediction.Weather";
+
+        String subDirectory = baseDirectory + "/prediction.Weather/" + Weather.getSs();
+
         createDirectoryIfNotExists(subDirectory);
+
         currentExecutionFileName = subDirectory + "/" + executionDateFormat.format(predictionDt) + ".events";
     }
 

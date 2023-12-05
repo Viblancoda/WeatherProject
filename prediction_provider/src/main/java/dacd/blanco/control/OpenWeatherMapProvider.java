@@ -41,10 +41,10 @@ public class OpenWeatherMapProvider implements WeatherProvider {
                 double rainProb = weatherJsonObject.get("pop").getAsDouble();
                 int clouds = weatherJsonObject.getAsJsonObject("clouds").get("all").getAsInt();
                 double windSpeed = weatherJsonObject.getAsJsonObject("wind").get("speed").getAsDouble();
-                Instant dt = Instant.ofEpochSecond(weatherJsonObject.get("dt").getAsLong()).truncatedTo(ChronoUnit.HOURS);
+                Instant predictionTs = Instant.ofEpochSecond(weatherJsonObject.get("dt").getAsLong()).truncatedTo(ChronoUnit.HOURS);
 
-                if (dt.equals(instant)) {
-                    return new Weather(location, clouds, windSpeed, rainProb, temperature, humidity, dt);
+                if (predictionTs.equals(instant)) {
+                    return new Weather(location, clouds, windSpeed, rainProb, temperature, humidity, predictionTs);
                 }
             }
         } catch (IOException e) {

@@ -1,12 +1,8 @@
 package dacd.blanco.control;
 
 import javax.jms.*;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSerializer;
 import org.apache.activemq.ActiveMQConnectionFactory;
-import java.time.Instant;
 import dacd.blanco.model.Weather;
-import com.google.gson.Gson;
 
 public class JMSWeatherStore implements WeatherStore {
 
@@ -27,17 +23,13 @@ public class JMSWeatherStore implements WeatherStore {
 
             MessageProducer producer = session.createProducer(destination);
 
-            Gson gson = new GsonBuilder()
-                    .registerTypeAdapter(Instant.class, (JsonSerializer<Instant>) (src, typeOfSrc, context) ->
-                            context.serialize(src.getEpochSecond()))
-                    .create();
+            String weatherString = buildWeatherString(weather);
 
-            String weatherJson = gson.toJson(weather);
-            TextMessage weatherMessage = session.createTextMessage(weatherJson);
+            TextMessage weatherMessage = session.createTextMessage(weatherString);
 
             producer.send(weatherMessage);
 
-            System.out.println("Weather sent to JMS broker.");
+            System.out.println("Weather sent to JMS broker." + weatherString);
         } catch (JMSException e) {
             throw new RuntimeException("Error storing weather data to JMS", e);
         } finally {
@@ -49,5 +41,21 @@ public class JMSWeatherStore implements WeatherStore {
                 e.printStackTrace();
             }
         }
+    }
+
+    private String buildWeatherString(Weather weather) {
+        return String.format(
+                "Location: %s, Clouds: %d, Wind Speed: %.2f, Rain Probability: %.2f, Temperature: %.2f, Humidity: %d, " +
+                        "Date and Time: %s, ss: %s, Prediction Date and Time: %s",
+                weather.getLocation().getName(),
+                weather.getClouds(),
+                weather.getWindSpeed(),
+                weather.getRainProb(),
+                weather.getTemperature(),
+                weather.getHumidity(),
+                weather.getPredictionTs(),
+                Weather.getSs(),
+                Weather.getTs()
+        );
     }
 }

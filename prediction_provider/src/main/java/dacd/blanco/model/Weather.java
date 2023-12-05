@@ -9,18 +9,20 @@ public class Weather {
     private double rainProb;
     private double temperature;
     private int humidity;
-    private Instant dt;
-    private static Instant predictionDt = Instant.now();
-    private static String ss = "prediction_provider";
+    private Instant predictionTs;
+    private static Instant ts;
+    private static String ss;
 
-    public Weather(Location location, int clouds, double windSpeed, double rainProb, double temperature, int humidity, Instant dt) {
+    public Weather(Location location, int clouds, double windSpeed, double rainProb, double temperature, int humidity, Instant predictionTs) {
         this.location = location;
         this.clouds = clouds;
         this.windSpeed = windSpeed;
         this.rainProb = rainProb;
         this.temperature = temperature;
         this.humidity = humidity;
-        this.dt = dt;
+        this.predictionTs = predictionTs;
+        this.ts = Instant.now();
+        this.ss = "prediction_provider";
     }
 
     public Location getLocation() {
@@ -47,12 +49,12 @@ public class Weather {
         return humidity;
     }
 
-    public Instant getDt() {
-        return dt;
+    public Instant getPredictionTs() {
+        return predictionTs;
     }
 
-    public static Instant getPredictionDt() {
-        return predictionDt;
+    public static Instant getTs() {
+        return ts;
     }
 
     public static String getSs() {
