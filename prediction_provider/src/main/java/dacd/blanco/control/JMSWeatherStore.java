@@ -11,8 +11,12 @@ import java.time.Instant;
 
 public class JMSWeatherStore implements WeatherSender {
 
-    private static final String brokerUrl = ActiveMQConnectionFactory.DEFAULT_BROKER_URL;
+    private final String brokerUrl;
     private static final String topicName = "prediction.Weather";
+
+    public JMSWeatherStore(String brokerUrl) {
+        this.brokerUrl = brokerUrl;
+    }
 
     @Override
     public void sendWeather(Weather weather) {

@@ -1,12 +1,11 @@
 package event_store_builder;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import javax.jms.*;
 
 public class AMQTopicSubscriber implements Subscriber{
     private final Connection connection;
-    private final String clientID = "prediction-provider";
+    private final String clientID = "clientID";
     private final Session session;
 
     public AMQTopicSubscriber(String url) throws JMSException {

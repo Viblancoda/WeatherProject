@@ -11,10 +11,10 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 public class FileEventStoreBuilder implements Listener{
-    private  String url;
+    private  String directory;
 
-    public FileEventStoreBuilder(String url) {
-        this.url = url;
+    public FileEventStoreBuilder(String directory) {
+        this.directory = directory;
     }
     @Override
     public void consume(String message) {
@@ -32,7 +32,7 @@ public class FileEventStoreBuilder implements Listener{
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         String formattedDate = dateTime.format(formatter);
 
-        String directoryPath = url + File.separator + ssValue;
+        String directoryPath = directory + File.separator + ssValue;
         File directory = new File(directoryPath);
         if (!directory.exists()) {
             directory.mkdirs();
