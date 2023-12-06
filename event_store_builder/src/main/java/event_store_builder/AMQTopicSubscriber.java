@@ -1,67 +1,47 @@
 package event_store_builder;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import org.apache.activemq.ActiveMQConnection;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.activemq.ActiveMQConnectionFactory;
-
 import javax.jms.*;
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
 
-public class AMQTopicSubscriber implements Subscriber {
-    private static String url = ActiveMQConnection.DEFAULT_BROKER_URL;
-    private static String topicName = "prediction.Weather";
-    private static String clientId = "ID";
-    private static String subscriptionName = "Subscriber";
+public class AMQTopicSubscriber implements Subscriber{
+    private final Connection connection;
+    private final String clientID = "prediction-provider";
+    private final Session session;
 
-    private final Listener listener;
-
-    public AMQTopicSubscriber(Listener listener) {
-        this.listener = listener;
+    public AMQTopicSubscriber(String url) throws JMSException {
+        ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(url);
+        connection = connectionFactory.createConnection();
+        connection.setClientID(clientID);
+        connection.start();
+        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
     }
 
     @Override
-    public void start() {
+    public void start(Listener listener, String topicName) {
         try {
-            ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(url);
-            Connection connection = connectionFactory.createConnection();
-            connection.setClientID(clientId);
-            connection.start();
 
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Topic destination = session.createTopic(topicName);
 
-            MessageConsumer consumer = session.createDurableSubscriber(session.createTopic(topicName), subscriptionName);
+            MessageConsumer durableSubscriber = session.createDurableSubscriber(destination, "prediction-provider"+ topicName);
 
-            System.out.println("\n");
 
-            consumer.setMessageListener(message -> {
-                try {
-                    String weatherJson = ((TextMessage) message).getText();
-                    System.out.println("Message received: " + weatherJson);
+            durableSubscriber.setMessageListener(message -> {
+                if (message instanceof TextMessage) {
+                    try {
 
-                    String ss = parseSSFromMessage(weatherJson);
-                    String dt = parseDTFromMessage(weatherJson);
+                        listener.consume(((TextMessage) message).getText());
 
-                    listener.consume(weatherJson, ss, dt);
-                } catch (JMSException e) {
-                    e.printStackTrace();
+                    } catch (JMSException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
-        } catch (JMSException e) {
-            e.printStackTrace();
+            Thread.sleep(Long.MAX_VALUE);
+
+            connection.close();
+        } catch (JMSException | InterruptedException e) {
+            throw new RuntimeException("Error while receiving JMS message", e);
         }
-    }
-
-    private String parseSSFromMessage(String message) {
-        JsonObject jsonObject = new Gson().fromJson(message, JsonObject.class);
-        return jsonObject.get("ss").getAsString();
-    }
-
-    private String parseDTFromMessage(String message) {
-        JsonObject jsonObject = new Gson().fromJson(message, JsonObject.class);
-        String tsValue = jsonObject.get("ts").getAsString();
-        Instant instant = Instant.parse(tsValue);
-        return DateTimeFormatter.ofPattern("yyyyMMdd").format(instant);
     }
 }

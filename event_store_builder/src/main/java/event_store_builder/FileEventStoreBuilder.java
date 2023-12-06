@@ -1,57 +1,50 @@
 package event_store_builder;
 
-import java.io.BufferedWriter;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
-public class FileEventStoreBuilder implements Listener {
-    private String baseDirectory;
+public class FileEventStoreBuilder implements Listener{
+    private  String url;
 
-    public FileEventStoreBuilder(String baseDirectory) {
-        this.baseDirectory = baseDirectory;
-        createDirectoryIfNotExists();
+    public FileEventStoreBuilder(String url) {
+        this.url = url;
     }
-
-    private void createDirectoryIfNotExists() {
-        try {
-            if (!Files.exists(Path.of(baseDirectory))) {
-                Files.createDirectories(Path.of(baseDirectory));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.err.println("Error creating base directory: " + e.getMessage());
-        }
-    }
-
     @Override
-    public void consume(String messageContent, String ss, String dt) {
-        try {
-            String subDirectory = baseDirectory + "/prediction.Weather/" + ss;
+    public void consume(String message) {
 
-            createDirectoryIfNotExists(subDirectory);
+        System.out.println("message:" + message);
+        Gson gson = new Gson();
+        JsonObject jsonObject = gson.fromJson(message, JsonObject.class);
 
-            String currentExecutionFileName = subDirectory + "/" + dt + ".events";
+        String ssValue = jsonObject.get("ss").getAsString();
+        String tsValue = jsonObject.get("ts").getAsString();
 
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(currentExecutionFileName, true))) {
-                writer.write(messageContent + "\n");
-                System.out.println("Message saved to: " + currentExecutionFileName);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.err.println("Error saving message to file: " + e.getMessage());
+        Instant instant = Instant.parse(tsValue);
+        LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        String formattedDate = dateTime.format(formatter);
+
+        String directoryPath = url + File.separator + ssValue;
+        File directory = new File(directoryPath);
+        if (!directory.exists()) {
+            directory.mkdirs();
+            System.out.println("Directory created");
         }
-    }
 
-    private void createDirectoryIfNotExists(String directoryPath) {
-        try {
-            if (!Files.exists(Path.of(directoryPath))) {
-                Files.createDirectories(Path.of(directoryPath));
-            }
+        String filePath = directoryPath + File.separator + formattedDate + ".events";
+        try (FileWriter writer = new FileWriter(filePath, true)) {
+            writer.write(message + "\n");
+            System.out.println("Message appended to file: " + filePath);
         } catch (IOException e) {
-            e.printStackTrace();
-            System.err.println("Error creating directory: " + e.getMessage());
+            throw new RuntimeException("Error writing to file", e);
         }
     }
 }

@@ -5,7 +5,7 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 
-public class Main {
+public class MainSender {
     public static void main(String[] args) {
         WeatherController weatherController = new WeatherController(new OpenWeatherMapProvider(args[0]), new JMSWeatherStore());
 
