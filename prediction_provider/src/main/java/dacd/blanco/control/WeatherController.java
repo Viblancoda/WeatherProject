@@ -9,11 +9,11 @@ import java.util.List;
 
 public class WeatherController {
     private final WeatherProvider weatherProvider;
-    private final WeatherStore weatherStore;
+    private final WeatherSender weatherSender;
 
-    public WeatherController(WeatherProvider weatherProvider, WeatherStore weatherStore) {
+    public WeatherController(WeatherProvider weatherProvider, WeatherSender weatherSender) {
         this.weatherProvider = weatherProvider;
-        this.weatherStore = weatherStore;
+        this.weatherSender = weatherSender;
     }
 
     public void execute() {
@@ -27,7 +27,7 @@ public class WeatherController {
                 if (weather != null) {
                     System.out.println(weather);
                     System.out.println();
-                    weatherStore.saveWeather(weather);
+                    weatherSender.sendWeather(weather);
                 } else {
                     System.out.println("No weather data found for " + location.getName() + " at " + instant);
                 }
