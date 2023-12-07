@@ -19,27 +19,20 @@ public class AMQTopicSubscriber implements Subscriber{
     @Override
     public void start(Listener listener, String topicName) {
         try {
-
             Topic destination = session.createTopic(topicName);
-
-            MessageConsumer durableSubscriber = session.createDurableSubscriber(destination, "prediction-provider"+ topicName);
-
+            MessageConsumer durableSubscriber = session.createDurableSubscriber(destination, "prediction-provider-" + topicName);
 
             durableSubscriber.setMessageListener(message -> {
                 if (message instanceof TextMessage) {
                     try {
-
-                        listener.consume(((TextMessage) message).getText());
-
+                        String messageText = ((TextMessage) message).getText();
+                        listener.consume(messageText);
                     } catch (JMSException e) {
-                        e.printStackTrace();
+                        throw new RuntimeException("Error while consuming JMS message", e);
                     }
                 }
             });
-            Thread.sleep(Long.MAX_VALUE);
-
-            connection.close();
-        } catch (JMSException | InterruptedException e) {
+        } catch (JMSException e) {
             throw new RuntimeException("Error while receiving JMS message", e);
         }
     }
