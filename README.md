@@ -69,4 +69,4 @@ The Prediction Provider and Event Store Builder modules work together to fetch, 
 ![image](https://github.com/Viblancoda/WeatherProject/assets/145458834/ea654b28-16a4-4c89-8685-e422e1411626)
 
 ### Event Store Builder Class Diagram
-![img.png](img.png)
+![img_1.png](img_1.png)
