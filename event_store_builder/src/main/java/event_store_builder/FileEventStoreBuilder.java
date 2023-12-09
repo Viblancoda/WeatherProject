@@ -21,7 +21,7 @@ public class FileEventStoreBuilder implements Listener {
     }
 
     @Override
-    public void consume(String message) throws MyException.FileEventStoreException{
+    public void consume(String message) throws CustomJMSException.FileEventStoreException{
         System.out.println("Message content: " + message);
         JsonObject jsonObject = gson.fromJson(message, JsonObject.class);
 
@@ -45,7 +45,7 @@ public class FileEventStoreBuilder implements Listener {
             writer.write(message + "\n");
             System.out.println("Message saved in: " + filePath);
         } catch (IOException e) {
-            throw new MyException.FileEventStoreException("Error saving message", e);
+            throw new CustomJMSException.FileEventStoreException("Error saving message", e);
         }
     }
 }

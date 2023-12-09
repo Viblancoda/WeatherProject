@@ -2,34 +2,32 @@ package event_store_builder;
 
 import javax.jms.JMSException;
 
-
-public class MyException extends Exception {
-    public MyException(String message, Throwable cause) {
+public class CustomJMSException extends Exception {
+    public CustomJMSException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public static class JMSConnectionException extends MyException {
+    public static class JMSConnectionException extends CustomJMSException {
         public JMSConnectionException(String message, JMSException cause) {
             super(message, cause);
         }
     }
 
-    public static class JMSMessageReceivingException extends MyException {
+    public static class JMSMessageReceivingException extends CustomJMSException {
         public JMSMessageReceivingException(String message, JMSException cause) {
             super(message, cause);
         }
     }
 
-    public static class JMSMessageProcessingException extends MyException {
+    public static class JMSMessageProcessingException extends CustomJMSException {
         public JMSMessageProcessingException(String message, Throwable cause) {
             super(message, cause);
         }
     }
 
-    public static class FileEventStoreException extends MyException {
+    public static class FileEventStoreException extends CustomJMSException {
         public FileEventStoreException(String message, Throwable cause) {
             super(message, cause);
         }
     }
 }
-
