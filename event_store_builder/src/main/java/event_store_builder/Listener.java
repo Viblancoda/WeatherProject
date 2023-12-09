@@ -1,5 +1,5 @@
 package event_store_builder;
 
 public interface Listener {
-    void consume(String messageContent);
+    void consume(String messageContent) throws MyException.FileEventStoreException;
 }

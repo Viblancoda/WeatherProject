@@ -21,31 +21,31 @@ public class FileEventStoreBuilder implements Listener {
     }
 
     @Override
-    public void consume(String message) {
-        System.out.println("message: " + message);
+    public void consume(String message) throws MyException.FileEventStoreException{
+        System.out.println("Message content: " + message);
         JsonObject jsonObject = gson.fromJson(message, JsonObject.class);
 
-        String ssValue = jsonObject.get("ss").getAsString();
-        String tsValue = jsonObject.get("ts").getAsString();
+        String ss = jsonObject.get("ss").getAsString();
+        String ts = jsonObject.get("ts").getAsString();
 
-        Instant instant = Instant.parse(tsValue);
+        Instant instant = Instant.parse(ts);
         LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        String formattedDate = dateTime.format(formatter);
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyyMMdd");
+        String date = dateTime.format(dateFormat);
 
-        String directoryPath = directory + File.separator + ssValue;
+        String directoryPath = directory + File.separator + ss;
         File directory = new File(directoryPath);
         if (directory.mkdirs()) {
-            System.out.println("Directory created");
+            System.out.println("Created directory");
         }
 
-        String filePath = directoryPath + File.separator + formattedDate + ".events";
+        String filePath = directoryPath + File.separator + date + ".events";
         try (FileWriter writer = new FileWriter(filePath, true)) {
             writer.write(message + "\n");
             System.out.println("Message saved in: " + filePath);
         } catch (IOException e) {
-            throw new RuntimeException("Error writing to file", e);
+            throw new MyException.FileEventStoreException("Error saving message", e);
         }
     }
 }

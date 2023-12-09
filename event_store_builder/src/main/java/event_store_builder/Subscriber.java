@@ -1,5 +1,5 @@
 package event_store_builder;
 
 public interface Subscriber {
-    void start(Listener listener, String topicName);
+    void start(Listener listener, String topicName) throws MyException.JMSMessageReceivingException;
 }
