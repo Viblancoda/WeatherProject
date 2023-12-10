@@ -66,7 +66,7 @@ Implements the Observer Pattern in AMQTopicSubscriber for asynchronous message p
 The Prediction Provider and Event Store Builder modules work together to fetch, process, and store weather predictions. The modular design adheres to design principles, promoting flexibility, maintainability, and testability. The collaboration between components allows for easy extension or replacement, enhancing the overall robustness of the system.
   
 ### Prediction Provider Class Diagram
-![image](https://github.com/Viblancoda/WeatherProject/assets/145458834/ea654b28-16a4-4c89-8685-e422e1411626)
+![img.png](img.png)
 
 ### Event Store Builder Class Diagram
 ![img_1.png](img_1.png)
