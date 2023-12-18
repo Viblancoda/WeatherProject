@@ -15,8 +15,8 @@ public class FileEventStoreBuilder implements Listener {
     private final String directory;
     private final Gson gson;
 
-    public FileEventStoreBuilder(String directory) {
-        this.directory = directory;
+    public FileEventStoreBuilder() {
+        this.directory = "eventstore/prediction.Weather";
         this.gson = new Gson();
     }
 
