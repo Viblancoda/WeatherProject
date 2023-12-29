@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class FileEventStoreBuilder implements Listener {
@@ -21,31 +22,31 @@ public class FileEventStoreBuilder implements Listener {
     }
 
     @Override
-    public void consume(String message) throws CustomJMSException.FileEventStoreException{
+    public void consume(String message){
         System.out.println("Message content: " + message);
         JsonObject jsonObject = gson.fromJson(message, JsonObject.class);
 
         String ss = jsonObject.get("ss").getAsString();
         String ts = jsonObject.get("ts").getAsString();
 
-        Instant instant = Instant.parse(ts);
-        LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+        ZonedDateTime zonedDateTime = ZonedDateTime.parse(ts);
 
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyyMMdd");
-        String date = dateTime.format(dateFormat);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        String formattedDate = zonedDateTime.format(formatter);
 
-        String directoryPath = directory + File.separator + ss;
+        String directoryPath = directory + "\\" + ss;
         File directory = new File(directoryPath);
-        if (directory.mkdirs()) {
-            System.out.println("Created directory");
+        if (!directory.exists()) {
+            directory.mkdirs();
+            System.out.println("Directory created");
         }
 
-        String filePath = directoryPath + File.separator + date + ".events";
+        String filePath = directoryPath + "\\" + formattedDate + ".events";
         try (FileWriter writer = new FileWriter(filePath, true)) {
             writer.write(message + "\n");
-            System.out.println("Message saved in: " + filePath);
+            System.out.println("Message appended to file: " + filePath);
         } catch (IOException e) {
-            throw new CustomJMSException.FileEventStoreException("Error saving message", e);
+            throw new RuntimeException("Error writing to file", e);
         }
     }
 }

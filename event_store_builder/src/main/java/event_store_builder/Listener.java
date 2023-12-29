@@ -1,5 +1,5 @@
 package event_store_builder;
 
 public interface Listener {
-    void consume(String messageContent) throws CustomJMSException.FileEventStoreException;
+    void consume(String messageContent);
 }
