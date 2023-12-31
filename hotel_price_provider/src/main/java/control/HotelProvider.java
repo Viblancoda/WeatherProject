@@ -1,10 +1,11 @@
 package control;
 
 import model.Hotel;
+import model.Reservation;
 
-import java.time.Instant;
 import java.util.List;
 
+
 public interface HotelProvider {
-    List<Hotel> getHotels(String location, Instant checkInDate, Instant checkOutDate);
+    Reservation getHotel(Hotel hotel, Reservation reservation);
 }
