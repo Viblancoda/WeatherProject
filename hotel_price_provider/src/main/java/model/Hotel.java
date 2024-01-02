@@ -1,7 +1,5 @@
 package model;
 
-import java.util.List;
-
 public class Hotel {
     private String location;
     private String name;
@@ -23,5 +21,13 @@ public class Hotel {
 
     public String getHotelKey() {
         return hotelKey;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

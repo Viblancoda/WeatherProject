@@ -1,30 +1,33 @@
 package control;
 
 import model.Hotel;
-import model.Rate;
 import model.Reservation;
 
 import java.util.List;
 
-public class HotelController {
+import java.util.ArrayList;
 
-    public static void main(String[] args) {
-        HotelController hotelController = new HotelController();
-        hotelController.execute();
+
+public class HotelController {
+    private final HotelSender hotelSender;
+
+    public HotelController(HotelSender hotelSender) {
+        this.hotelSender = hotelSender;
     }
 
-    private void execute() {
-        List<Hotel> hotels = createHotelList();
+    public void execute() {
+        List<Reservation> reservationList = new ArrayList<>();
 
-        HotelProvider hotelProvider = new OpenHotelMapProvider();
+        for (Hotel hotel : createHotelList()) {
+            Reservation reservation = new OpenHotelMapProvider().getHotelDetails(hotel);
+            if (reservation != null) {
+                reservationList.add(reservation);
+            }
+        }
 
-        for (Hotel hotel : hotels) {
-            Reservation updatedReservation = hotelProvider.getHotel(hotel, reservation);
-
-            // Print or process the updated reservation information
-            System.out.println("Hotel: " + hotel.getName());
-            System.out.println("Updated Rates: " + updatedReservation.getRates());
-            System.out.println();
+        for (Reservation reservation : reservationList) {
+            System.out.println("Reservation details: " + reservation.toString());
+            hotelSender.send(reservation);
         }
     }
 

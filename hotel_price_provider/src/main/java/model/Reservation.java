@@ -1,31 +1,23 @@
 package model;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
+import com.google.gson.JsonArray;
 
-import java.time.format.DateTimeFormatter;
+import java.time.Instant;
+
+
 
 
 public class Reservation {
-    private Instant check_in;
-    private Instant check_out;
-    private List<Rate> rates;
+    private Hotel hotel;
+    private String check_in;
+    private String check_out;
+    private JsonArray rates;
     private final Instant ts;
     private final String ss;
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public Reservation(List<Rate> rates) {
-        this.check_in = Instant.now();
-        this.check_out = Instant.now().plus(5, ChronoUnit.DAYS);
-        this.rates = rates;
-        this.ts = Instant.now();
-        this.ss = "hotel_price_provider";
-    }
-
-    public Reservation(List<Rate> rates, Instant check_in, Instant check_out) {
+    public Reservation(Hotel hotel, String check_in, String check_out, JsonArray rates) {
+        this.hotel = hotel;
         this.check_in = check_in;
         this.check_out = check_out;
         this.rates = rates;
@@ -33,22 +25,16 @@ public class Reservation {
         this.ss = "hotel_price_provider";
     }
 
-    // Getters and setters
-
-    public String getFormattedCheck_in() {
-        return check_in.atZone(ZoneId.systemDefault()).toLocalDate().format(DATE_FORMATTER);
+    public String getCheck_in() {
+        return check_in;
     }
 
-    public String getFormattedCheck_out() {
-        return check_out.atZone(ZoneId.systemDefault()).toLocalDate().format(DATE_FORMATTER);
+    public String getCheck_out() {
+        return check_out;
     }
 
-    public List<Rate> getRates() {
+    public JsonArray getRates() {
         return rates;
-    }
-
-    public void setRates(List<Rate> rates) {
-        this.rates = rates;
     }
 
     public Instant getTs() {
@@ -57,5 +43,17 @@ public class Reservation {
 
     public String getSs() {
         return ss;
+    }
+
+    public void setCheck_in(String check_in) {
+        this.check_in = check_in;
+    }
+
+    public void setCheck_out(String check_out) {
+        this.check_out = check_out;
+    }
+
+    public void setRates(JsonArray rates) {
+        this.rates = rates;
     }
 }
