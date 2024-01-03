@@ -10,7 +10,7 @@
     <modules>
         <module>prediction_provider</module>
         <module>event_store_builder</module>
-        <module>hotel_price_provider</module>
+        <module>hotel_rates_provider</module>
     </modules>
 
     <properties>
