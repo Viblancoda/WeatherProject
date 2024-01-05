@@ -5,7 +5,7 @@ import javax.jms.*;
 
 public class AMQTopicSubscriber implements Subscriber {
     private final Connection connection;
-    private final String clientID = "client1";
+    private final String clientID = "datalakeClient";
     private final String weatherTopic = "prediction.Weather";
     private final String hotelTopic = "reservation.Hotel";
     private final Session session;

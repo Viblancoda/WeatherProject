@@ -20,7 +20,6 @@ public class FileEventStoreBuilder implements Listener {
 
     @Override
     public void consume(String message, String topic){
-        System.out.println("Message received");
         Gson gson = new Gson();
         JsonObject jsonObject = gson.fromJson(message, JsonObject.class);
 
@@ -51,7 +50,7 @@ public class FileEventStoreBuilder implements Listener {
     private void writeMessage(String filePath, String message) {
         try (FileWriter writer = new FileWriter(filePath, true)) {
             writer.write(message + "\n");
-            System.out.println("Message written: " + filePath);
+            System.out.println("Message written");
         } catch (IOException e) {
             throw new RuntimeException("Error writing to file", e);
         }

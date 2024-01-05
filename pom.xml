@@ -11,6 +11,7 @@
         <module>prediction-provider</module>
         <module>datalake-builder</module>
         <module>hotel-rates-provider</module>
+        <module>business-unit</module>
     </modules>
 
     <properties>
