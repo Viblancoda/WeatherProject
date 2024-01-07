@@ -6,8 +6,6 @@ import com.google.gson.JsonObject;
 import java.io.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DataMartBuilder implements Listener {
     private final String directory;
@@ -17,24 +15,6 @@ public class DataMartBuilder implements Listener {
         this.directory = directory;
     }
 
-    public String getDirectory() {
-        return directory;
-    }
-
-    public List<String> readEvents() {
-        List<String> events = new ArrayList<>();
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(directory + File.separator + file + ".events"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                events.add(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return events;
-    }
 
     public void consume(String message, String topicName) {
         Gson gson = new Gson();
