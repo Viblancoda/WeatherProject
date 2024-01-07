@@ -1,3 +1,5 @@
+package control;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -7,12 +9,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DataMartBuilder implements Listener{
+public class DataMartBuilder implements Listener {
     private final String directory;
-    private final String file = "events";
+    private final String file = "all-events";
 
     public DataMartBuilder(String directory) {
         this.directory = directory;
+    }
+
+    public String getDirectory() {
+        return directory;
     }
 
     public List<String> readEvents() {

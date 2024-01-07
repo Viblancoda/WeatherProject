@@ -1,8 +1,10 @@
+package control;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
 
-public class AMQSubscriber implements Subscriber{
+public class AMQSubscriber implements Subscriber {
     private final Connection connection;
     private final Session session;
     private static final String weatherTopic = "prediction.Weather";
