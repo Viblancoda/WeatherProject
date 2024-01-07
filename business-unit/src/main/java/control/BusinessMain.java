@@ -12,5 +12,7 @@ public class BusinessMain {
         Subscriber subscriber = new AMQSubscriber(args[0]);
         Listener listener = new DataMartBuilder(directory);
         subscriber.start(listener);
+        HotelRecommendation hotelRecommendation = new HotelRecommendation();
+        hotelRecommendation.chooseLocation();
     }
 }

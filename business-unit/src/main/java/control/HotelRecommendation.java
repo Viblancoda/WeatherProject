@@ -1,9 +1,5 @@
 package control;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -15,18 +11,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 public class HotelRecommendation {
     private final Scanner scanner;
 
     public HotelRecommendation() {
         this.scanner = new Scanner(System.in);
-    }
-
-    public static void main(String[] args) {
-        HotelRecommendation hotelRecommendation = new HotelRecommendation();
-        hotelRecommendation.chooseLocation();
     }
 
     public void chooseLocation() {
@@ -36,17 +26,15 @@ public class HotelRecommendation {
         System.out.print("Ingrese el nombre de la ubicación (isla): ");
         String ubicacionInput = scanner.nextLine();
 
-        List<String> eventosUbicacion = filterEventsByLocation(eventos, ubicacionInput);
-        if (!eventosUbicacion.isEmpty()) {
+        List<String> locationEvents = filterEventsByLocation(eventos, ubicacionInput);
+        if (!locationEvents.isEmpty()) {
             System.out.println("\nEventos para la ubicación " + ubicacionInput + ":");
-            eventosUbicacion.forEach(System.out::println);
+            locationEvents.forEach(System.out::println);
 
-            // Datos climáticos
-            List<double[]> climaticDataList = extractWeatherData(eventosUbicacion);
+            List<double[]> climaticDataList = extractWeatherData(locationEvents);
             displayClimaticData(climaticDataList);
 
-            // Hoteles ordenados por rate
-            List<String> hotelesOrdenados = sortHotelsByRate(eventosUbicacion);
+            List<String> hotelesOrdenados = sortHotelsByRate(locationEvents);
             displaySortedHotels(hotelesOrdenados);
         } else {
             System.out.println("No hay eventos para la ubicación ingresada.");
@@ -72,17 +60,17 @@ public class HotelRecommendation {
     private List<String> filterEventsByLocation(List<String> eventos, String ubicacion) {
         List<String> eventosUbicacion = new ArrayList<>();
         for (String evento : eventos) {
-            if (evento.contains("\"name\":\"" + ubicacion + "\"")) {
+            if (evento.contains("\"name\":\"" + ubicacion + "\"") || (evento.contains("\"location\":\"" + ubicacion + "\""))) {
                 eventosUbicacion.add(evento);
             }
         }
         return eventosUbicacion;
     }
 
-    private List<double[]> extractWeatherData(List<String> eventosUbicacion) {
-        List<double[]> climaticDataList = new ArrayList<>();
+    private List<double[]> extractWeatherData(List<String> locationEvents) {
+        List<double[]> weatherList = new ArrayList<>();
 
-        for (String evento : eventosUbicacion) {
+        for (String evento : locationEvents) {
             int startIdx = evento.indexOf("clouds");
             if (startIdx == -1) {
                 continue;
@@ -91,55 +79,60 @@ public class HotelRecommendation {
             String[] tokens = evento.substring(startIdx).split(",");
             double[] climaticData = new double[5];
 
-            climaticData[0] = Double.parseDouble(tokens[0].split(":")[1].trim()); // Nubosidad
-            climaticData[1] = Double.parseDouble(tokens[1].split(":")[1].trim()); // Velocidad del viento
-            climaticData[2] = Double.parseDouble(tokens[2].split(":")[1].trim()); // Probabilidad de lluvia
-            climaticData[3] = Double.parseDouble(tokens[3].split(":")[1].trim()); // Temperatura
+            climaticData[0] = Double.parseDouble(tokens[0].split(":")[1].trim());
+            climaticData[1] = Double.parseDouble(tokens[1].split(":")[1].trim());
+            climaticData[2] = Double.parseDouble(tokens[2].split(":")[1].trim());
+            climaticData[3] = Double.parseDouble(tokens[3].split(":")[1].trim());
             climaticData[4] = Double.parseDouble(tokens[4].split(":")[1].replaceAll("[^0-9.]", "").trim()); // Humedad
 
-            climaticDataList.add(climaticData);
+            weatherList.add(climaticData);
         }
 
-        return climaticDataList;
+        return weatherList;
     }
 
+    private List<String> sortHotelsByRate(List<String> locationEvents) {
+        List<String> bestHotelsSorted = new ArrayList<>();
 
-    private List<String> sortHotelsByRate(List<String> eventosUbicacion) {
-        List<String> hoteles = new ArrayList<>();
+        for (String evento : locationEvents) {
+            int ratesIndex = evento.indexOf("\"rates\"");
+            if (ratesIndex != -1) {
+                String ratesSubstring = evento.substring(ratesIndex);
+                String[] rateTokens = ratesSubstring.split("\"rate\":");
+                List<Double> rates = new ArrayList<>();
 
-        for (String evento : eventosUbicacion) {
-            JsonObject json = JsonParser.parseString(evento).getAsJsonObject();
-            JsonElement rateElement = json.getAsJsonObject().get("rate");
-            if (rateElement != null && !rateElement.isJsonNull()) {
-                String hotelInfo = rateElement.getAsString(); // Agrega la información del hotel incluyendo la tasa (rate)
-                hoteles.add(hotelInfo);
+                for (int i = 1; i < rateTokens.length; i++) {
+                    double rate = Double.parseDouble(rateTokens[i].split(",")[0].trim());
+                    if (rate > 0) {
+                        rates.add(rate);
+                    }
+                }
+
+                if (!rates.isEmpty()) {
+                    double minRate = Collections.min(rates);
+                    String hotelName = extractHotelNameFromEvent(evento);
+                    bestHotelsSorted.add(hotelName + ": " + minRate);
+                }
             }
         }
 
-        if (!hoteles.isEmpty()) {
-            // Filtra las listas de rates no vacías
-            hoteles = hoteles.stream()
-                    .filter(hotelInfo -> {
-                        JsonObject json = JsonParser.parseString(hotelInfo).getAsJsonObject();
-                        JsonElement rateElement = json.getAsJsonPrimitive("rate");
-                        return rateElement != null && !rateElement.isJsonNull();
-                    })
-                    .collect(Collectors.toList());
+        Collections.sort(bestHotelsSorted, Comparator.comparingDouble(this::extractRateFromHotelEntry));
 
-            // Ordena la lista de hoteles por la tasa (rate) de menor a mayor
-            Collections.sort(hoteles, Comparator.comparingDouble(hotelInfo -> {
-                JsonObject json = JsonParser.parseString(hotelInfo).getAsJsonObject();
-                return json.getAsJsonPrimitive("rate").getAsDouble();
-            }));
-
-            return hoteles;
-        } else {
-            System.out.println("No hay hoteles disponibles para la ubicación especificada.");
-            return Collections.emptyList();
-        }
+        return bestHotelsSorted;
     }
 
+    private String extractHotelNameFromEvent(String evento) {
+        int hotelNameIndex = evento.indexOf("\"name\":\"");
+        if (hotelNameIndex != -1) {
+            int endIndex = evento.indexOf("\",", hotelNameIndex);
+            return evento.substring(hotelNameIndex + "\"name\":\"".length(), endIndex);
+        }
+        return "";
+    }
 
+    private double extractRateFromHotelEntry(String hotelEntry) {
+        return Double.parseDouble(hotelEntry.split(":")[1].trim());
+    }
 
     private static String generateDatamartFileName() {
         LocalDate currentDate = LocalDate.now();
@@ -160,7 +153,9 @@ public class HotelRecommendation {
     }
 
     private void displaySortedHotels(List<String> hotelesOrdenados) {
-        System.out.println("\nHoteles ordenados por rate de menor a mayor:");
-        hotelesOrdenados.forEach(System.out::println);
+        System.out.println("\nHoteles ordenados por el precio más bajo:");
+        for (String hotelEntry : hotelesOrdenados) {
+            System.out.println(hotelEntry);
+        }
     }
 }
