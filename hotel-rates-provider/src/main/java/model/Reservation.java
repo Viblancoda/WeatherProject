@@ -1,7 +1,6 @@
 package model;
 
 import com.google.gson.JsonArray;
-
 import java.time.Instant;
 
 public class Reservation {

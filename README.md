@@ -34,37 +34,87 @@ Follows the Single Responsibility Principle (SRP) by assigning specific responsi
 Utilizes dependency injection in WeatherController to facilitate testing and flexibility.
 
 
-## __Event Store Builder Module__
-
+## __Hotel Rates Provider Module__ 
 ## Summary of Functionality
-The Event Store Builder module, part of the broader system, subscribes to a JMS topic, receives weather predictions, and stores them in a file-based event store. It includes the following components:
+The Hotel Rates Provider module is responsible for retrieving hotel data from a specified source, processing it, and sending predictions to a message broker using Java Message Service (JMS). It focuses on hotel rates for the Canary Islands. The module includes the following components:
 
-**AMQTopicSubscriber Class**: Implements the Subscriber interface and connects to ActiveMQ as a durable topic subscriber. It listens for weather predictions and delegates processing to a provided Listener.
+**Reservation Class**: Represents a hotel reservation with details such as hotel information, check-in and check-out dates, rates, timestamp, and source.
 
-**FileEventStoreBuilder Class**: Implements the Listener interface and processes incoming messages, extracting relevant data, and storing them in files based on location and timestamp.
+**Hotel Class**: Represents hotel details including location, name, and a unique hotel key.
 
-**MainReceiver Class**: Contains the main method to instantiate an AMQTopicSubscriber and a FileEventStoreBuilder, specifying the ActiveMQ broker URL and directory for storing events.
+**OpenHotelMapProvider Class**: Implements the HotelProvider interface and fetches hotel data from a designated source based on the specified check-in and check-out dates.
+
+**JMSHotelStore Class**: Implements the HotelSender interface and sends hotel reservation data to a specified JMS topic using the ActiveMQ message broker.
+
+**HotelController Class**: Orchestrates the interaction between the OpenHotelMapProvider and JMSHotelStore. It retrieves hotel data for predefined locations, check-in, and check-out dates, prints the data to the console, and sends it to the JMS topic.
+
+**MainHotelRatesSender Class**: Contains the main method to instantiate a HotelController and schedule periodic hotel data retrieval and sending tasks.
 
 ## Design
 ### Responsibilities:
-
-**AMQTopicSubscriber**: Connects to ActiveMQ, subscribes to a JMS topic, and delegates message processing to a provided Listener.
-**FileEventStoreBuilder**: Processes incoming messages, extracts data, organizes events into directories, and persists them in files.
-**MainReceiver**: Orchestrates the instantiation of the subscriber and listener and initiates the subscription.
+**Reservation**: Represents a hotel reservation with associated details.
+**OpenHotelMapProvider**: Fetches hotel data from a specified source based on check-in and check-out dates.
+**JMSHotelStore**: Sends hotel reservation data to a JMS topic using the ActiveMQ message broker.
+**HotelController**: Coordinates the retrieval and sending of hotel reservation data.
 
 ### Collaboration:
+HotelController collaborates with OpenHotelMapProvider and JMSHotelStore to fetch and send hotel data, respectively.
 
-AMQTopicSubscriber collaborates with the provided Listener to handle incoming messages.
+### Design Principles:
+Follows the Single Responsibility Principle (SRP) by assigning specific responsibilities to each class.
+Utilizes dependency injection in HotelController to facilitate testing and flexibility.
+
+
+## __DataLake Builder Module__
+## Summary of Functionality
+The DataLake Builder module is responsible for subscribing to a JMS topic, receiving event data, and creating a datalake with separate repositories for both weather and hotel events. The module includes the following components:
+
+**AMQTopicSubscriber Class**: Implements the Subscriber interface and connects to ActiveMQ as a durable topic subscriber. It listens for both weather and hotel events and delegates processing to a provided Listener.
+
+**FileEventStoreBuilder Class**: Implements the Listener interface and processes incoming messages, extracting relevant data, and storing them in separate repositories based on event type.
+
+## Design
+### Responsibilities:
+**AMQTopicSubscriber**: Connects to ActiveMQ, subscribes to a JMS topic, and delegates message processing to a provided Listener.
+**FileEventStoreBuilder**: Processes incoming messages, extracts data, organizes events into separate repositories for weather and hotel events, and persists them in files.
+
+### Collaboration:
+AMQTopicSubscriber collaborates with the FileEventStoreBuilder to handle incoming messages.
 FileEventStoreBuilder uses Gson for JSON parsing and file I/O operations to store events.
 
 ### Design Principles and Patterns:
-
 Adheres to the Single Responsibility Principle (SRP) and Dependency Inversion Principle (DIP).
 Implements the Observer Pattern in AMQTopicSubscriber for asynchronous message processing.
 
-## Conclusion
-The Prediction Provider and Event Store Builder modules work together to fetch, process, and store weather predictions. The modular design adheres to design principles, promoting flexibility, maintainability, and testability. The collaboration between components allows for easy extension or replacement, enhancing the overall robustness of the system.
-  
+
+## __Business Unit Module__
+## Summary of Functionality
+The Business Unit module is structured as an MVC (Model-View-Controller) architecture. It interacts with the data obtained from both weather and hotel events, creating a datamart with today's events and providing a user interface for interacting with the system. The module includes the following components:
+
+**AMQSubscriber Class**: Implements the Subscriber interface and connects to ActiveMQ as a non-durable topic subscriber. It listens for both weather and hotel events and delegates processing to a provided Listener.
+
+**DataMartBuilder Class**: Implements the Listener interface and processes incoming messages, extracting relevant data, and creating a datamart with today's events.
+
+**HotelInfo Class**: Contains utility methods for reading datamart files, generating file names, filtering events by location, extracting weather data, and sorting hotels by rate.
+
+**UserInterface Class**: Provides a simple console-based user interface for choosing an island destination and displaying weather and hotel information.
+
+## Design
+### Responsibilities:
+**AMQSubscriber**: Connects to ActiveMQ, subscribes to JMS topics, and delegates message processing to a provided Listener.
+**DataMartBuilder**: Processes incoming messages, extracts data, creates a datamart with today's events, and stores them in files.
+**HotelInfo**: Provides utility methods for reading datamart files, generating file names, and processing hotel and weather events.
+**UserInterface**: Interacts with the user, gathers input, and displays weather and hotel information.
+
+### Collaboration:
+AMQSubscriber collaborates with DataMartBuilder to handle incoming messages.
+DataMartBuilder uses Gson for JSON parsing and file I/O operations to store events.
+UserInterface interacts with HotelInfo to display weather and hotel information to the user.
+
+### Design Principles and Patterns:
+Follows the Model-View-Controller (MVC) architectural pattern for a clear separation of concerns.
+Adheres to the Single Responsibility Principle (SRP) by assigning specific responsibilities to each class.
+
 ### Prediction Provider Class Diagram
 ![img.png](img.png)
 

@@ -33,7 +33,7 @@ public class UserInterface {
     private void displayWeather(List<double[]> weatherList) {
         System.out.println("\nWeather:");
         weatherList.forEach(weather -> {
-            System.out.println("Prediction date: " + HotelInfo.predictionTsFormat.format(new Date((long) weather[5])));
+            System.out.println("Date: " + HotelInfo.predictionTsFormat.format(new Date((long) weather[5])));
             System.out.println("Clouds: " + weather[0]);
             System.out.println("Wind speed: " + weather[1] + " m/s");
             System.out.println("Rain probability: " + weather[2] + "%");
@@ -43,7 +43,7 @@ public class UserInterface {
     }
 
     private void displaySortedHotels(List<String> sortedHotels) {
-        System.out.println("\nHotels sorted by price:");
+        System.out.println("Hotels sorted by price:");
         sortedHotels.forEach(System.out::println);
     }
 }
