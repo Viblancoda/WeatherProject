@@ -11,24 +11,27 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
-public class BusinessMain {
+public class HotelRecommender {
     private final Scanner scanner;
-
-    public BusinessMain() {
+    private static final SimpleDateFormat predictionTsFormat = new SimpleDateFormat("yyyy-MM-dd");
+    public HotelRecommender() {
         this.scanner = new Scanner(System.in);
     }
 
     public static void main(String[] args) {
-        BusinessMain businessMain = new BusinessMain();
-        businessMain.chooseLocation();
+        HotelRecommender hotelRecommender = new HotelRecommender();
+        hotelRecommender.chooseLocation();
     }
 
     public void chooseLocation() {
         String fileName = generateDataMartFileName();
         List<String> events = readDataMart(fileName);
 
-        System.out.print("Ingrese el nombre de la ubicación (isla): ");
+        System.out.print("Ingrese el nombre de la isla que desea: ");
         String inputLocation = scanner.nextLine();
 
         List<String> locationEvents = filterEventsByLocation(events, inputLocation);
@@ -80,18 +83,45 @@ public class BusinessMain {
             }
 
             String[] tokens = event.substring(startIdx).split(",");
-            double[] weather = new double[5];
+            if (tokens.length >= 5) {
+                double[] weather = new double[6];
+                String predictionTs = extractPredictionTs(event);
+                try {
+                    Date predictionDate = predictionTsFormat.parse(predictionTs);
+                    weather[5] = predictionDate.getTime();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    continue;
+                }
+                weather[0] = parseDoubleValue(tokens[0]);
+                weather[1] = parseDoubleValue(tokens[1]);
+                weather[2] = parseDoubleValue(tokens[2]);
+                weather[3] = parseDoubleValue(tokens[3]);
+                weather[4] = parseDoubleValue(tokens[4].replaceAll("[^0-9.]", "").trim());
 
-            weather[0] = Double.parseDouble(tokens[0].split(":")[1].trim());
-            weather[1] = Double.parseDouble(tokens[1].split(":")[1].trim());
-            weather[2] = Double.parseDouble(tokens[2].split(":")[1].trim());
-            weather[3] = Double.parseDouble(tokens[3].split(":")[1].trim());
-            weather[4] = Double.parseDouble(tokens[4].split(":")[1].replaceAll("[^0-9.]", "").trim()); // Humedad
-
-            weatherList.add(weather);
+                weatherList.add(weather);
+            }
         }
 
         return weatherList;
+    }
+
+    private String extractPredictionTs(String event) {
+        int startIdx = event.indexOf("predictionTs");
+        if (startIdx == -1) {
+            return null;
+        }
+
+        String[] tokens = event.substring(startIdx).split(",");
+        return tokens[0].split(":")[1].replaceAll("[^0-9T-]", "").trim();
+    }
+
+    private double parseDoubleValue(String token) {
+        String[] parts = token.split(":");
+        if (parts.length > 1) {
+            return Double.parseDouble(parts[1].trim());
+        }
+        return 0.0;
     }
 
     private List<String> sortHotelsByRate(List<String> locationEvents) {
@@ -99,8 +129,13 @@ public class BusinessMain {
 
         for (String event : locationEvents) {
             int ratesIndex = event.indexOf("\"rates\"");
-            if (ratesIndex != -1) {
+            int checkInIndex = event.indexOf("\"check_in\"");
+            int checkOutIndex = event.indexOf("\"check_out\"");
+            if (ratesIndex != -1 && checkInIndex != -1 && checkOutIndex != -1) {
                 String ratesSubstring = event.substring(ratesIndex);
+                String checkInSubstring = event.substring(checkInIndex);
+                String checkOutSubstring = event.substring(checkOutIndex);
+
                 String[] rateTokens = ratesSubstring.split("\"rate\":");
                 List<Double> rates = new ArrayList<>();
 
@@ -114,7 +149,11 @@ public class BusinessMain {
                 if (!rates.isEmpty()) {
                     double minRate = Collections.min(rates);
                     String hotelName = extractHotelNameFromEvent(event);
-                    bestHotelsSorted.add(hotelName + ": " + minRate);
+
+                    String checkIn = extractDateFromEvent(checkInSubstring);
+                    String checkOut = extractDateFromEvent(checkOutSubstring);
+
+                    bestHotelsSorted.add(hotelName + ": " + minRate + "€ - Check-in: " + checkIn + " - Check-out: " + checkOut);
                 }
             }
         }
@@ -122,6 +161,15 @@ public class BusinessMain {
         Collections.sort(bestHotelsSorted, Comparator.comparingDouble(this::extractRateFromHotelEntry));
 
         return bestHotelsSorted;
+    }
+
+    private String extractDateFromEvent(String dateSubstring) {
+        int startIndex = dateSubstring.indexOf(":\"") + 2;
+        int endIndex = dateSubstring.indexOf("\",");
+        if (startIndex != -1 && endIndex != -1) {
+            return dateSubstring.substring(startIndex, endIndex);
+        }
+        return "";
     }
 
     private String extractHotelNameFromEvent(String event) {
@@ -134,7 +182,11 @@ public class BusinessMain {
     }
 
     private double extractRateFromHotelEntry(String hotelEntry) {
-        return Double.parseDouble(hotelEntry.split(":")[1].trim());
+        String numericPart = hotelEntry.replaceAll("[^\\d.]", "");
+        if (!numericPart.isEmpty()) {
+            return Double.parseDouble(numericPart);
+        }
+        return 0.0;
     }
 
     private static String generateDataMartFileName() {
@@ -145,8 +197,9 @@ public class BusinessMain {
     }
 
     private void displayWeather(List<double[]> weatherList) {
-        System.out.println("\nDatos climáticos para cada evento:");
+        System.out.println("\nDatos climáticos:");
         for (double[] weather : weatherList) {
+            System.out.println("Fecha de predicción: " + predictionTsFormat.format(new Date((long) weather[5])));
             System.out.println("Nubes: " + weather[0]);
             System.out.println("Velocidad del viento: " + weather[1] + " m/s");
             System.out.println("Probabilidad de lluvia: " + weather[2] + "%");
@@ -156,9 +209,9 @@ public class BusinessMain {
     }
 
     private void displaySortedHotels(List<String> sortedHotels) {
-        System.out.println("\nHoteles ordenados por el precio más bajo:");
+        System.out.println("\nHoteles ordenados desde el más barato:");
         for (String hotelEntry : sortedHotels) {
-            System.out.println(hotelEntry + "€");
+            System.out.println(hotelEntry);
         }
     }
 }
