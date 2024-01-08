@@ -7,8 +7,7 @@ import javax.jms.*;
 public class AMQSubscriber implements Subscriber {
     private final Connection connection;
     private final Session session;
-    private static final String weatherTopic = "prediction.Weather";
-    private static final String hotelTopic = "reservation.Hotel";
+    private static final String[] topics = {"prediction.Weather", "reservation.Hotel"};
 
     public AMQSubscriber(String brokerUrl) throws JMSException {
         ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(brokerUrl);
@@ -20,25 +19,21 @@ public class AMQSubscriber implements Subscriber {
     @Override
     public void start(Listener listener) {
         try {
-            Topic weatherDestination = session.createTopic(weatherTopic);
-            Topic hotelDestination = session.createTopic(hotelTopic);
+            for (String topic : topics) {
+                Topic destination = session.createTopic(topic);
+                MessageConsumer consumer = session.createConsumer(destination);
 
-            MessageConsumer weatherConsumer = session.createConsumer(weatherDestination);
-            MessageConsumer hotelConsumer = session.createConsumer(hotelDestination);
-
-            weatherConsumer.setMessageListener(message -> handleMessage(message, listener, weatherTopic));
-            hotelConsumer.setMessageListener(message -> handleMessage(message, listener, hotelTopic));
+                consumer.setMessageListener(message -> {
+                    try {
+                        listener.consume(((TextMessage) message).getText(), topic);
+                        System.out.println(message);
+                    } catch (JMSException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+            }
         } catch (JMSException e) {
             throw new RuntimeException("Error setting up MessageListener", e);
-        }
-    }
-
-    private void handleMessage(Message message, Listener listener, String topicName) {
-        try {
-            listener.consume(((TextMessage) message).getText(), topicName);
-            System.out.println(message);
-        } catch (JMSException e) {
-            throw new RuntimeException(e);
         }
     }
 }

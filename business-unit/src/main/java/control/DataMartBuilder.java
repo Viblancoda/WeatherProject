@@ -20,43 +20,41 @@ public class DataMartBuilder implements Listener {
         Gson gson = new Gson();
         JsonObject jsonObject = gson.fromJson(message, JsonObject.class);
 
-        String tsValue = jsonObject.get("ts").getAsString();
+        String timestampValue = jsonObject.get("ts").getAsString();
 
-        ZonedDateTime zonedDateTime = ZonedDateTime.parse(tsValue);
+        ZonedDateTime eventDateTime = ZonedDateTime.parse(timestampValue);
 
-        if (zonedDateTime.toLocalDate().equals(LocalDate.now())) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-            String formattedDate = zonedDateTime.format(formatter);
+        if (eventDateTime.toLocalDate().equals(LocalDate.now())) {
+            String formattedDate = eventDateTime.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
             String directoryPath = directory + File.separator + formattedDate;
-            createDirectory(directoryPath);
+            createDirectoryIfNotExists(directoryPath);
 
-            cleanOldEvents(directory, formattedDate);
+            removeOldEvents(directory, formattedDate);
 
             String filePath = directoryPath + File.separator + file + ".events";
             writeMessageToFile(filePath, message);
         }
     }
 
-    private void createDirectory(String directoryPath) {
+    private void createDirectoryIfNotExists(String directoryPath) {
         File directory = new File(directoryPath);
-        if (!directory.exists()) {
-            directory.mkdirs();
+        if (!directory.exists() && directory.mkdirs()) {
             System.out.println("Directory created");
         }
     }
 
     private void writeMessageToFile(String filePath, String message) {
-        try (FileWriter writer = new FileWriter(filePath, true)) {
-            writer.write(message + "\n");
-            System.out.println("Message written: " + filePath);
+        try (PrintWriter writer = new PrintWriter(new FileWriter(filePath, true))) {
+            writer.println(message);
+            System.out.println("Message written to: " + filePath);
         } catch (IOException e) {
-            throw new RuntimeException("Error writing to file", e);
+            throw new UncheckedIOException("Error writing to file", e);
         }
     }
 
-    private void cleanOldEvents(String basePath, String currentFolder) {
-        File baseDirectory = new File(basePath);
+    private void removeOldEvents(String baseDirectoryPath, String currentFolder) {
+        File baseDirectory = new File(baseDirectoryPath);
         File[] subdirectories = baseDirectory.listFiles(File::isDirectory);
 
         if (subdirectories != null) {

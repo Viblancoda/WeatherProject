@@ -18,7 +18,7 @@ public class OpenHotelMapProvider implements HotelProvider {
     @Override
     public Reservation getHotel(Hotel hotel, Reservation reservation) {
         Instant checkin = Instant.now().plus(1, ChronoUnit.DAYS);
-        Instant checkout = Instant.now().plus(5, ChronoUnit.DAYS);
+        Instant checkout = Instant.now().plus(4, ChronoUnit.DAYS);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String checkInDate = LocalDateTime.ofInstant(checkin, ZoneOffset.UTC).format(formatter);
