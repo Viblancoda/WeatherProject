@@ -13,7 +13,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-public class HotelRecommender {
+public class HotelInfo {
     public static final SimpleDateFormat predictionTsFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     public static List<String> readDataMart(String filePath) {
@@ -132,7 +132,7 @@ public class HotelRecommender {
             }
         }
 
-        Collections.sort(bestHotelsSorted, Comparator.comparingDouble(HotelRecommender::extractRateFromHotelEntry));
+        Collections.sort(bestHotelsSorted, Comparator.comparingDouble(HotelInfo::extractRateFromHotelEntry));
 
         return bestHotelsSorted;
     }

@@ -3,8 +3,7 @@ package view;
 import java.util.Scanner;
 import java.util.List;
 import java.util.Date;
-import java.text.SimpleDateFormat;
-import model.HotelRecommender;
+import model.HotelInfo;
 
 public class UserInterface {
     private final Scanner scanner;
@@ -14,19 +13,19 @@ public class UserInterface {
     }
 
     public void chooseLocation() {
-        String fileName = HotelRecommender.generateDataMartFileName();
-        List<String> events = HotelRecommender.readDataMart(fileName);
+        String fileName = HotelInfo.generateDataMartFileName();
+        List<String> events = HotelInfo.readDataMart(fileName);
 
         System.out.print("Choose your island destination: ");
         String inputLocation = scanner.nextLine();
 
-        List<String> locationEvents = HotelRecommender.filterEventsByLocation(events, inputLocation);
+        List<String> locationEvents = HotelInfo.filterEventsByLocation(events, inputLocation);
         if (!locationEvents.isEmpty()) {
 
-            List<double[]> weatherList = HotelRecommender.extractWeather(locationEvents);
+            List<double[]> weatherList = HotelInfo.extractWeather(locationEvents);
             displayWeather(weatherList);
 
-            List<String> sortedHotels = HotelRecommender.sortHotelsByRate(locationEvents);
+            List<String> sortedHotels = HotelInfo.sortHotelsByRate(locationEvents);
             displaySortedHotels(sortedHotels);
         } else {
             System.out.println("No events for this island");
@@ -38,7 +37,7 @@ public class UserInterface {
     private void displayWeather(List<double[]> weatherList) {
         System.out.println("\nWeather:");
         for (double[] weather : weatherList) {
-            System.out.println("Prediction date: " + HotelRecommender.predictionTsFormat.format(new Date((long) weather[5])));
+            System.out.println("Prediction date: " + HotelInfo.predictionTsFormat.format(new Date((long) weather[5])));
             System.out.println("Clouds: " + weather[0]);
             System.out.println("Wind speed: " + weather[1] + " m/s");
             System.out.println("Rain probability: " + weather[2] + "%");
