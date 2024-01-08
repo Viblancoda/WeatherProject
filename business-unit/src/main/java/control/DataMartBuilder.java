@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 
 public class DataMartBuilder implements Listener {
     private final String directory;
-    private final String file = "all-events";
+    private final String file = "today";
 
     public DataMartBuilder(String directory) {
         this.directory = directory;
