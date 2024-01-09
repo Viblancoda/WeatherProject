@@ -115,6 +115,11 @@ UserInterface interacts with HotelInfo to display weather and hotel information 
 Follows the Model-View-Controller (MVC) architectural pattern for a clear separation of concerns.
 Adheres to the Single Responsibility Principle (SRP) by assigning specific responsibilities to each class.
 
+## Conclusion
+
+In summary, the system comprises four interconnected modules. The Prediction Provider module handles weather prediction, while the Hotel Rates Provider module focuses on hotel data. The DataLake Builder module acts as an intermediary, 
+creating separate repositories. The Business Unit module utilizes the MVC pattern to build a datamart and provide a user interface. Principles like SRP and DIP are applied, and dependency injection is used for flexibility and effective testing. 
+Overall, the system offers a modular, maintainable, and scalable solution for managing weather and hotel data, with an intuitive user interface.
 ### Prediction Provider Class Diagram
 ![img.png](img.png)
 
