@@ -125,4 +125,5 @@ Adheres to the Single Responsibility Principle (SRP) by assigning specific respo
 ![img_1.png](img_1.png)
 
 ### Business Unit Class Diagram
+![img_3.png](img_3.png)
 

@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 public class DataMartBuilder implements Listener {
     private final String directory;
     private final String file = "today";
-    private static boolean datamartCleared = false;
+    private static boolean dataMartEmpty = false;
 
     public DataMartBuilder(String directory) {
         this.directory = directory;
@@ -28,9 +28,9 @@ public class DataMartBuilder implements Listener {
 
         String formattedDate = eventDateTime.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
-        if (!datamartCleared) {
+        if (!dataMartEmpty) {
             clearDataMart();
-            datamartCleared = true;
+            dataMartEmpty = true;
         }
 
         String directoryPath = directory + File.separator + formattedDate;

@@ -16,7 +16,7 @@ public class UserInterface {
         String fileName = HotelInfo.writeDataMartName();
         List<String> events = HotelInfo.readDataMart(fileName);
 
-        System.out.print("Choose your island destination: ");
+        System.out.print("Choose your Canary Island to find the best hotels: ");
         String inputLocation = scanner.nextLine();
 
         List<String> locationEvents = HotelInfo.filterEventsByLocation(events, inputLocation);
