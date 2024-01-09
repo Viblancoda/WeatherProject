@@ -58,11 +58,9 @@ public class HotelInfo {
                 for (int i = 0; i < 5; i++) {
                     weather[i] = parseDoubleValue(tokens[i]);
                 }
-
                 weatherList.add(weather);
             }
         }
-
         return weatherList;
     }
 
@@ -71,7 +69,6 @@ public class HotelInfo {
         if (startIdx == -1) {
             return null;
         }
-
         String[] tokens = event.substring(startIdx).split(",");
         return tokens[0].split(":")[1].replaceAll("[^0-9T-]", "").trim();
     }
@@ -112,7 +109,6 @@ public class HotelInfo {
                 })
                 .toList();
     }
-
 
     private static String extractHotelNameFromEvent(String hotel) {
         int hotelNameIndex = hotel.indexOf("\"name\":\"");

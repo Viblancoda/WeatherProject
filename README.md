@@ -97,7 +97,7 @@ The Business Unit module is structured as an MVC (Model-View-Controller) archite
 
 **HotelInfo Class**: Contains utility methods for reading datamart files, generating file names, filtering events by location, extracting weather data, and sorting hotels by rate.
 
-**UserInterface Class**: Provides a simple console-based user interface for choosing an island destination and displaying weather and hotel information.
+**UserInterface Class**: Provides a simple console-based user interface for choosing an island destination and displaying weather and hotel information. The answer of the user should be the name of the Canary Island where the user want to find the best hotels sorted by their price and the weather predictions.
 
 ## Design
 ### Responsibilities:
@@ -118,5 +118,11 @@ Adheres to the Single Responsibility Principle (SRP) by assigning specific respo
 ### Prediction Provider Class Diagram
 ![img.png](img.png)
 
-### Event Store Builder Class Diagram
+### Hotel Rates Provider Class Diagram
+![img_2.png](img_2.png)
+
+### DataLake Builder Class Diagram
 ![img_1.png](img_1.png)
+
+### Business Unit Class Diagram
+

@@ -4,18 +4,20 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 
 public class DataMartBuilder implements Listener {
     private final String directory;
     private final String file = "today";
+    private static boolean datamartCleared = false;
 
     public DataMartBuilder(String directory) {
         this.directory = directory;
     }
 
-
+    @Override
     public void consume(String message, String topicName) {
         Gson gson = new Gson();
         JsonObject jsonObject = gson.fromJson(message, JsonObject.class);
@@ -24,16 +26,28 @@ public class DataMartBuilder implements Listener {
 
         ZonedDateTime eventDateTime = ZonedDateTime.parse(timestampValue);
 
-        if (eventDateTime.toLocalDate().equals(LocalDate.now())) {
-            String formattedDate = eventDateTime.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String formattedDate = eventDateTime.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
-            String directoryPath = directory + File.separator + formattedDate;
-            createDirectoryIfNotExists(directoryPath);
+        if (!datamartCleared) {
+            clearDataMart();
+            datamartCleared = true;
+        }
 
-            removeOldEvents(directory, formattedDate);
+        String directoryPath = directory + File.separator + formattedDate;
+        createDirectoryIfNotExists(directoryPath);
 
-            String filePath = directoryPath + File.separator + file + ".events";
-            writeMessageToFile(filePath, message);
+        String filePath = directoryPath + File.separator + file + ".events";
+        writeMessageToFile(filePath, message);
+    }
+
+    private void clearDataMart() {
+        File baseDirectory = new File(directory);
+        File[] subdirectories = baseDirectory.listFiles(File::isDirectory);
+
+        if (subdirectories != null) {
+            for (File subdirectory : subdirectories) {
+                deleteDirectory(subdirectory);
+            }
         }
     }
 
@@ -50,19 +64,6 @@ public class DataMartBuilder implements Listener {
             System.out.println("Message written to: " + filePath);
         } catch (IOException e) {
             throw new UncheckedIOException("Error writing to file", e);
-        }
-    }
-
-    private void removeOldEvents(String baseDirectoryPath, String currentFolder) {
-        File baseDirectory = new File(baseDirectoryPath);
-        File[] subdirectories = baseDirectory.listFiles(File::isDirectory);
-
-        if (subdirectories != null) {
-            for (File subdirectory : subdirectories) {
-                if (!subdirectory.getName().equals(currentFolder)) {
-                    deleteDirectory(subdirectory);
-                }
-            }
         }
     }
 

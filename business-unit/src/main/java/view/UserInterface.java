@@ -21,8 +21,8 @@ public class UserInterface {
 
         List<String> locationEvents = HotelInfo.filterEventsByLocation(events, inputLocation);
         if (!locationEvents.isEmpty()) {
-            displayWeather(HotelInfo.extractWeather(locationEvents));
-            displaySortedHotels(HotelInfo.sortHotelsByRate(locationEvents));
+            showWeatherEvents(HotelInfo.extractWeather(locationEvents));
+            showSortedHotelsByRate(HotelInfo.sortHotelsByRate(locationEvents));
         } else {
             System.out.println("No events for this island");
         }
@@ -30,7 +30,7 @@ public class UserInterface {
         scanner.close();
     }
 
-    private void displayWeather(List<double[]> weatherList) {
+    private void showWeatherEvents(List<double[]> weatherList) {
         System.out.println("\nWeather:");
         weatherList.forEach(weather -> {
             System.out.println("Date: " + HotelInfo.dateFormat.format(new Date((long) weather[5])));
@@ -42,7 +42,7 @@ public class UserInterface {
         });
     }
 
-    private void displaySortedHotels(List<String> sortedHotels) {
+    private void showSortedHotelsByRate(List<String> sortedHotels) {
         System.out.println("Hotels sorted by price:");
         sortedHotels.forEach(System.out::println);
     }
