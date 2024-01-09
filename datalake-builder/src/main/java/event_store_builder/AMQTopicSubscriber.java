@@ -5,7 +5,7 @@ import javax.jms.*;
 
 public class AMQTopicSubscriber implements Subscriber {
     private final Connection connection;
-    private final String clientID = "datalakeClient";
+    private final String clientID = "DataLakeClient";
     private final String[] topics = {"prediction.Weather", "reservation.Hotel"};
     private final Session session;
 

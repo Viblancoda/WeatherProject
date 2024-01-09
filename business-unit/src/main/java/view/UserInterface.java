@@ -12,8 +12,8 @@ public class UserInterface {
         this.scanner = new Scanner(System.in);
     }
 
-    public void chooseLocation() {
-        String fileName = HotelInfo.generateDataMartFileName();
+    public void selectLocation() {
+        String fileName = HotelInfo.writeDataMartName();
         List<String> events = HotelInfo.readDataMart(fileName);
 
         System.out.print("Choose your island destination: ");
@@ -33,7 +33,7 @@ public class UserInterface {
     private void displayWeather(List<double[]> weatherList) {
         System.out.println("\nWeather:");
         weatherList.forEach(weather -> {
-            System.out.println("Date: " + HotelInfo.predictionTsFormat.format(new Date((long) weather[5])));
+            System.out.println("Date: " + HotelInfo.dateFormat.format(new Date((long) weather[5])));
             System.out.println("Clouds: " + weather[0]);
             System.out.println("Wind speed: " + weather[1] + " m/s");
             System.out.println("Rain probability: " + weather[2] + "%");

@@ -2,7 +2,6 @@ package event_store_builder;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
